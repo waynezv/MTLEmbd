@@ -2,8 +2,12 @@ import constants
 import numpy as np
 import theano
 import theano.tensor as T
+from theano.tensor.nnet import conv2d
+from theano.tensor.signal import pool
 import sys
 
+rng = np.random.RandomState(93492019)
+inp = T.tensor4(name = 'input')
 
 class CallerInfo:
 	def __init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
@@ -47,6 +51,55 @@ class Instance:
         # TODO: Read self.input_file, assign values to vec and task_labels
         pass
 
+class ConvolutionBuilder:
+	def __init__(self, param_size, param_bound, bias_size, name):
+		self.W = theano.shared(np.asarray(
+        	rng.uniform(
+        		low = -1.0 / param_bound,
+        		high = 1 / param_bound,
+        		size = param_size
+        		),
+        	dtype = inp.dtype), name = name + 'W')
+
+		self.b = theano.shared(np.asarray(
+			rng.uniform(
+        		low = -0.5,
+        		high = 0.5,
+				size = bias_size
+        		),
+        	dtype = inp.dtype), name = name + 'b')
+
+        self.out = conv2d(inp, self.W)
+
+        self.output = T.nnet.relu(self.out + self.b.dimshuffle('x', 0, 'x', 'x'))
+        self.f = theano.function([inp], self.output)
+
+
+class Maxpool:
+	def __init__(self, shape, stride):
+		self.output = pool.pool_2d(inp, shape, st = stride, ignore_border = True)
+		self.f = theano.function([inp], self.output)
+
+class MeanSubtract:
+	def __init__(self, kernel_size):
+		self.kernel_size = kernel_size
+		self.f = theano.function([inp], )
+		self.filter_shape = (1, 1, self.kernel_size, self.kernel_size)
+		self.filters = mean_filter(self.kernel_size).reshape(filter_shape)
+		self.filters = shared(_asarray(filters, dtype=floatX), borrow=True)
+
+		self.mean = conv2d(inp, filters=filters, filter_shape=filter_shape, 
+		                border_mode='full')
+		self.mid = int(floor(kernel_size/2.))
+		self.output = inp - mean[:,:,mid:-mid,mid:-mid]
+		self.f = theano.function([inp], self.output)
+
+
+	def mean_filter(self):
+		s = self.kernel_size**2
+		x = repeat(1./s, s).reshape((self.kernel_size, self.kernel_size))
+		return x
+
 class MultitaskNetwork:
     def __init__(self, config):
         self.config = config
@@ -54,3 +107,4 @@ class MultitaskNetwork:
         self.learning_rate = config["learning_rate"]
 
         # TODO: Read self.input_file, assign values to vec and task_labels
+        self.conv1 = ConvolutionBuilder(constants.CONV1_PARAM_SIZE, constants.CONV1_PARAM_BOUND, constants.CONV1_BIAS_SIZE, 'conv1')
