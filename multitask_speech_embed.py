@@ -102,7 +102,39 @@ class MeanSubtract:
 
 class ForwardLayer:
     def __init__(self, param_size, bias_size):
-        self.W = 
+        W_values = numpy.asarray(
+            rng.uniform(
+                low=-numpy.sqrt(6. / (n_in + n_out)),
+                high=numpy.sqrt(6. / (n_in + n_out)),
+                size=(n_in, n_out)
+            ),
+            dtype=theano.config.floatX
+            )
+        if activation == theano.tensor.nnet.sigmoid:
+            W_values *= 4
+
+        W = theano.shared(value=W_values, name='W', borrow=True)
+
+        b_values = numpy.zeros((n_out,), dtype=theano.config.floatX)
+        b = theano.shared(value=b_values, name='b', borrow=True)
+
+        self.W = W
+        self.b = b
+        
+        self.output = T.dot(input, self.W) + self.b
+        self.f = theano.function([inp], self.output)
+
+#TODO: Qinlan take forward layer, predict correct element in output
+class Task:
+
+    def __init__(self, dimension_output):
+
+
+    def train_on_instance(self, shared_embedding, word, target):
+
+    def predict_on_instance(self, shared_embedding, word, target):
+
+
 
 class MultitaskNetwork:
     def __init__(self, config):
@@ -110,9 +142,13 @@ class MultitaskNetwork:
         self.batch_size = config["batch_size"]
         self.learning_rate = config["learning_rate"]
 
-        # TODO: Read self.input_file, assign values to vec and task_labels
         self.conv1 = ConvolutionBuilder(constants.CONV1_PARAM_SIZE, constants.CONV1_PARAM_BOUND, constants.CONV1_BIAS_SIZE, 'conv1')
         self.maxpool = Maxpool(constants.MAXPOOL_SHAPE, constants.MAXPOOL_STRIDE)
         self.mean = MeanSubtract(constants.MEAN_KERNEL)
         self.conv2 = ConvolutionBuilder(constants.CONV1_PARAM_SIZE, constants.CONV1_PARAM_BOUND, constants.CONV1_BIAS_SIZE, 'conv2')
-        self.forward = ForwardLayer(FORWARD1_SIZE, )
+        self.forward = ForwardLayer(constants.FORWARD1_PARAM_SIZE, constants.FORWARD1_BIAS_SIZE)
+
+        # TODO: Read self.input_file, assign values to vec and task_labels
+
+    #TODO: unknown
+    def training():
