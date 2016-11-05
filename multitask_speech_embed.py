@@ -10,34 +10,34 @@ rng = np.random.RandomState(93492019)
 inp = T.tensor4(name = 'input')
 
 class CallerInfo:
-	def __init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
-		self.userid = userid
-		self.gender = gender #0 female 1 male
-		self.age = age
-		self.education = education
-		self.dialect = dialect
+    def __init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
+        self.userid = userid
+        self.gender = gender #0 female 1 male
+        self.age = age
+        self.education = education
+        self.dialect = dialect
 
 caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
 
 def load_caller_info():
-	callers = [s.strip().split(',') for s in open('conv_tab.csv')]
-	education_dict = {}
+    callers = [s.strip().split(',') for s in open('conv_tab.csv')]
+    education_dict = {}
 
-	for caller in callers:
-		call_id = int(caller[0])
-		gender = caller[3]
-		if gender == "Female":
-			gender = 0
-		else:
-			gender = 1
-		age = 1997 - int(callers[4])
-		dialect = callers[5]
-		education = callers[6]
-		if education in education_dict:
-			education = education_dict[education]
-		else:
-			education_dict[education] = len(education_dict)
-		caller_info_dic[call_id] = CallerInfo(userid, gender, age, education, dialect)
+    for caller in callers:
+        call_id = int(caller[0])
+        gender = caller[3]
+        if gender == "Female":
+            gender = 0
+        else:
+            gender = 1
+        age = 1997 - int(callers[4])
+        dialect = callers[5]
+        education = callers[6]
+        if education in education_dict:
+            education = education_dict[education]
+        else:
+            education_dict[education] = len(education_dict)
+        caller_info_dic[call_id] = CallerInfo(userid, gender, age, education, dialect)
 
 
 class Instance:
@@ -52,22 +52,22 @@ class Instance:
         pass
 
 class ConvolutionBuilder:
-	def __init__(self, param_size, param_bound, bias_size, name):
-		self.W = theano.shared(np.asarray(
-        	rng.uniform(
-        		low = -1.0 / param_bound,
-        		high = 1 / param_bound,
-        		size = param_size
-        		),
-        	dtype = inp.dtype), name = name + 'W')
+    def __init__(self, param_size, param_bound, bias_size, name):
+        self.W = theano.shared(np.asarray(
+            rng.uniform(
+                low = -1.0 / param_bound,
+                high = 1 / param_bound,
+                size = param_size
+                ),
+            dtype = inp.dtype), name = name + 'W')
 
-		self.b = theano.shared(np.asarray(
-			rng.uniform(
-        		low = -0.5,
-        		high = 0.5,
-				size = bias_size
-        		),
-        	dtype = inp.dtype), name = name + 'b')
+        self.b = theano.shared(np.asarray(
+            rng.uniform(
+                low = -0.5,
+                high = 0.5,
+                size = bias_size
+                ),
+            dtype = inp.dtype), name = name + 'b')
 
         self.out = conv2d(inp, self.W)
 
@@ -76,29 +76,29 @@ class ConvolutionBuilder:
 
 
 class Maxpool:
-	def __init__(self, shape, stride):
-		self.output = pool.pool_2d(inp, shape, st = stride, ignore_border = True)
-		self.f = theano.function([inp], self.output)
+    def __init__(self, shape, stride):
+        self.output = pool.pool_2d(inp, shape, st = stride, ignore_border = True)
+        self.f = theano.function([inp], self.output)
 
 class MeanSubtract:
-	def __init__(self, kernel_size):
-		self.kernel_size = kernel_size
-		self.f = theano.function([inp], )
-		self.filter_shape = (1, 1, self.kernel_size, self.kernel_size)
-		self.filters = mean_filter(self.kernel_size).reshape(filter_shape)
-		self.filters = shared(_asarray(filters, dtype=floatX), borrow=True)
+    def __init__(self, kernel_size):
+        self.kernel_size = kernel_size
+        self.f = theano.function([inp], )
+        self.filter_shape = (1, 1, self.kernel_size, self.kernel_size)
+        self.filters = mean_filter(self.kernel_size).reshape(filter_shape)
+        self.filters = shared(_asarray(filters, dtype=floatX), borrow=True)
 
-		self.mean = conv2d(inp, filters=filters, filter_shape=filter_shape, 
-		                border_mode='full')
-		self.mid = int(floor(kernel_size/2.))
-		self.output = inp - mean[:,:,mid:-mid,mid:-mid]
-		self.f = theano.function([inp], self.output)
+        self.mean = conv2d(inp, filters=filters, filter_shape=filter_shape, 
+                        border_mode='full')
+        self.mid = int(floor(kernel_size/2.))
+        self.output = inp - mean[:,:,mid:-mid,mid:-mid]
+        self.f = theano.function([inp], self.output)
 
 
-	def mean_filter(self):
-		s = self.kernel_size**2
-		x = repeat(1./s, s).reshape((self.kernel_size, self.kernel_size))
-		return x
+    def mean_filter(self):
+        s = self.kernel_size**2
+        x = repeat(1./s, s).reshape((self.kernel_size, self.kernel_size))
+        return x
 
 class MultitaskNetwork:
     def __init__(self, config):
