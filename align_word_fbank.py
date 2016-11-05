@@ -25,9 +25,15 @@ class AlignWordFbank(object):
             self.word['time_frame'] = tm_frame
             self.word['position'] = 1
             print(self.word)
-            next_line = f.readline()
-            next_line = np.array(next_line)
-            print(next_line.shape)
+            tmp = []
+            for nxt_line in f:
+				tmp.append(tmp)
+                tmp = np.array(tmp)
+			print(tmp)
+			print(tmp.shape)
+            #next_line = f.readline()
+            #next_line = np.array(next_line)
+            #print(next_line.shape)
 
     def write_to_file(self):
         save_path = os.path.join(self.word['utter_id'], \
@@ -42,5 +48,5 @@ class AlignWordFbank(object):
 if __name__ == '__main__':
     word = AlignWordFbank()
     word.split_fbank(FBANK_TXT_DIR)
-    word.write_to_file()
+    #word.write_to_file()
 
