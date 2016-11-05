@@ -48,7 +48,7 @@ class Instance:
         self.task_labels = dict()   # Labels for each task for the instance
 
     def read_vec():
-        # TODO: Read self.input_file, assign values to vec and task_labels
+        # TODO: Wenbo Read self.input_file, assign values to vec and task_labels
         pass
 
 class ConvolutionBuilder:
@@ -69,7 +69,7 @@ class ConvolutionBuilder:
                 ),
             dtype = inp.dtype), name = name + 'b')
 
-        self.out = conv2d(inp, self.W)
+        self.out = conv2d(inp, self.W, subsample = (9,1))
 
         self.output = T.nnet.relu(self.out + self.b.dimshuffle('x', 0, 'x', 'x'))
         self.f = theano.function([inp], self.output)
@@ -100,6 +100,10 @@ class MeanSubtract:
         x = repeat(1./s, s).reshape((self.kernel_size, self.kernel_size))
         return x
 
+class ForwardLayer:
+    def __init__(self, param_size, bias_size):
+        self.W = 
+
 class MultitaskNetwork:
     def __init__(self, config):
         self.config = config
@@ -108,3 +112,7 @@ class MultitaskNetwork:
 
         # TODO: Read self.input_file, assign values to vec and task_labels
         self.conv1 = ConvolutionBuilder(constants.CONV1_PARAM_SIZE, constants.CONV1_PARAM_BOUND, constants.CONV1_BIAS_SIZE, 'conv1')
+        self.maxpool = Maxpool(constants.MAXPOOL_SHAPE, constants.MAXPOOL_STRIDE)
+        self.mean = MeanSubtract(constants.MEAN_KERNEL)
+        self.conv2 = ConvolutionBuilder(constants.CONV1_PARAM_SIZE, constants.CONV1_PARAM_BOUND, constants.CONV1_BIAS_SIZE, 'conv2')
+        self.forward = ForwardLayer(FORWARD1_SIZE, )
