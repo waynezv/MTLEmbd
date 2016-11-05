@@ -27,10 +27,10 @@ class AlignWordFbank(object):
             print(self.word)
             tmp = []
             for nxt_line in f:
-				tmp.append(tmp)
+                tmp.append(tmp)
                 tmp = np.array(tmp)
-			print(tmp)
-			print(tmp.shape)
+            print(tmp)
+            print(tmp.shape)
             #next_line = f.readline()
             #next_line = np.array(next_line)
             #print(next_line.shape)
