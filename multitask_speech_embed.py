@@ -6,7 +6,7 @@ import sys
 
 
 class CallerInfo:
-	__init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
+	def __init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
 		self.userid = userid
 		self.gender = gender #0 female 1 male
 		self.age = age
