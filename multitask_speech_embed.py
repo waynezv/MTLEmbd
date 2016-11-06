@@ -1,10 +1,15 @@
+from __future__ import print_function
+import sys
+import os
+import re
+import argparse as agp
+
 import constants
 import numpy as np
 import theano
 import theano.tensor as T
 from theano.tensor.nnet import conv2d
 from theano.tensor.signal import pool
-import sys
 
 rng = np.random.RandomState(93492019)
 inp = T.tensor4(name = 'input')
@@ -17,8 +22,8 @@ class CallerInfo:
         self.education = education
         self.dialect = dialect
 
-caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
 
+caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
 def load_caller_info():
     callers = [s.strip().split(',') for s in open('conv_tab.csv')]
     education_dict = {}
@@ -44,12 +49,21 @@ class Instance:
     def __init__(self, filename, multitask_flag):
         self.input_file = filename  # Name of file containing data for the instance
         self.vec = []               # Vector representation for network input
-        self.multitask_flag = 0     # Flag for whether to train on multiple tasks 
+        self.multitask_flag = 0     # Flag for whether to train on multiple tasks
         self.task_labels = dict()   # Labels for each task for the instance
 
     def read_vec():
         # TODO: Wenbo Read self.input_file, assign values to vec and task_labels
-        pass
+        with open(self.input_file, 'r') as f:
+            word = f.readline()
+            self.task_labels['word'] = word
+            spk_id = f.readline()
+            self.task_labels['speaker_id'] = spk_id
+            fbank = np.array(f.readlines()).astype(float)
+            assert fbank.shape[1] == 40, 'Wrong fbank dimension! \
+                Expect 40, got {:d}'.format(fbank.shape[1])
+            self.vec = fbank
+
 
 class ConvolutionBuilder:
     def __init__(self, param_size, param_bound, bias_size, name):
@@ -80,6 +94,7 @@ class Maxpool:
         self.output = pool.pool_2d(inp, shape, st = stride, ignore_border = True)
         self.f = theano.function([inp], self.output)
 
+
 class MeanSubtract:
     def __init__(self, kernel_size):
         self.kernel_size = kernel_size
@@ -88,7 +103,7 @@ class MeanSubtract:
         self.filters = mean_filter(self.kernel_size).reshape(filter_shape)
         self.filters = shared(_asarray(filters, dtype=floatX), borrow=True)
 
-        self.mean = conv2d(inp, filters=filters, filter_shape=filter_shape, 
+        self.mean = conv2d(inp, filters=filters, filter_shape=filter_shape,
                         border_mode='full')
         self.mid = int(floor(kernel_size/2.))
         self.output = inp - mean[:,:,mid:-mid,mid:-mid]
@@ -99,6 +114,7 @@ class MeanSubtract:
         s = self.kernel_size**2
         x = repeat(1./s, s).reshape((self.kernel_size, self.kernel_size))
         return x
+
 
 class ForwardLayer:
     def __init__(self, param_size, bias_size):
@@ -120,9 +136,10 @@ class ForwardLayer:
 
         self.W = W
         self.b = b
-        
+
         self.output = T.dot(input, self.W) + self.b
         self.f = theano.function([inp], self.output)
+
 
 #TODO: Qinlan take forward layer, predict correct element in output
 class Task:
@@ -133,7 +150,6 @@ class Task:
     def train_on_instance(self, shared_embedding, word, target):
 
     def predict_on_instance(self, shared_embedding, word, target):
-
 
 
 class MultitaskNetwork:
