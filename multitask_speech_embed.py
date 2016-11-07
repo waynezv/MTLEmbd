@@ -25,13 +25,13 @@ class CallerInfo:
 
 caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
 def load_caller_info():
-    callers = [s.strip().split(',') for s in open('conv_tab.csv')]
+    callers = [s.strip().split(',') for s in open('caller_tab.csv')]
     education_dict = {}
 
     for caller in callers:
         call_id = int(caller[0])
         gender = caller[3]
-        if gender == "Female":
+        if gender == "FEMALE":
             gender = 0
         else:
             gender = 1
@@ -41,7 +41,7 @@ def load_caller_info():
         if education in education_dict:
             education = education_dict[education]
         else:
-            education_dict[education] = len(education_dict)
+            education_dict[education] = len(education_dict) # ???
         caller_info_dic[call_id] = CallerInfo(userid, gender, age, education, dialect)
 
 
@@ -118,6 +118,7 @@ class MeanSubtract:
 
 class ForwardLayer:
     def __init__(self, param_size, bias_size):
+<<<<<<< HEAD
         W_values = numpy.asarray(
             rng.uniform(
                 low=-numpy.sqrt(6. / (n_in + n_out)),
@@ -151,6 +152,9 @@ class Task:
 
     def predict_on_instance(self, shared_embedding, word, target):
 
+=======
+        self.W =
+>>>>>>> dev
 
 class MultitaskNetwork:
     def __init__(self, config):
