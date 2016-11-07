@@ -20,13 +20,13 @@ class CallerInfo:
 caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
 
 def load_caller_info():
-    callers = [s.strip().split(',') for s in open('conv_tab.csv')]
+    callers = [s.strip().split(',') for s in open('caller_tab.csv')]
     education_dict = {}
 
     for caller in callers:
         call_id = int(caller[0])
         gender = caller[3]
-        if gender == "Female":
+        if gender == "FEMALE":
             gender = 0
         else:
             gender = 1
@@ -36,7 +36,7 @@ def load_caller_info():
         if education in education_dict:
             education = education_dict[education]
         else:
-            education_dict[education] = len(education_dict)
+            education_dict[education] = len(education_dict) # ???
         caller_info_dic[call_id] = CallerInfo(userid, gender, age, education, dialect)
 
 
@@ -44,7 +44,7 @@ class Instance:
     def __init__(self, filename, multitask_flag):
         self.input_file = filename  # Name of file containing data for the instance
         self.vec = []               # Vector representation for network input
-        self.multitask_flag = 0     # Flag for whether to train on multiple tasks 
+        self.multitask_flag = 0     # Flag for whether to train on multiple tasks
         self.task_labels = dict()   # Labels for each task for the instance
 
     def read_vec():
@@ -88,7 +88,7 @@ class MeanSubtract:
         self.filters = mean_filter(self.kernel_size).reshape(filter_shape)
         self.filters = shared(_asarray(filters, dtype=floatX), borrow=True)
 
-        self.mean = conv2d(inp, filters=filters, filter_shape=filter_shape, 
+        self.mean = conv2d(inp, filters=filters, filter_shape=filter_shape,
                         border_mode='full')
         self.mid = int(floor(kernel_size/2.))
         self.output = inp - mean[:,:,mid:-mid,mid:-mid]
@@ -102,7 +102,7 @@ class MeanSubtract:
 
 class ForwardLayer:
     def __init__(self, param_size, bias_size):
-        self.W = 
+        self.W =
 
 class MultitaskNetwork:
     def __init__(self, config):
