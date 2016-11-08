@@ -9,10 +9,11 @@ import numpy as np
 import theano
 import theano.tensor as T
 from theano.tensor.nnet import conv2d
+from theano.tensor.nnet.nnet import softmax
 from theano.tensor.signal import pool
 
 rng = np.random.RandomState(93492019)
-inp = T.tensor4(name = 'input')
+caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
 
 class CallerInfo:
     def __init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
@@ -23,7 +24,6 @@ class CallerInfo:
         self.dialect = dialect
 
 
-caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
 def load_caller_info():
     callers = [s.strip().split(',') for s in open('caller_tab.csv')]
     education_dict = {}
@@ -66,7 +66,7 @@ class Instance:
 
 
 class ConvolutionBuilder:
-    def __init__(self, param_size, param_bound, bias_size, name):
+    def __init__(self, inp, param_size, param_bound, bias_size, name):
         self.W = theano.shared(np.asarray(
             rng.uniform(
                 low = -1.0 / param_bound,
@@ -84,19 +84,18 @@ class ConvolutionBuilder:
             dtype = inp.dtype), name = name + 'b')
 
         self.out = conv2d(inp, self.W, subsample = (9,1))
-
         self.output = T.nnet.relu(self.out + self.b.dimshuffle('x', 0, 'x', 'x'))
         self.f = theano.function([inp], self.output)
+        self.params = [self.W, self.b]
 
 
 class Maxpool:
-    def __init__(self, shape, stride):
+    def __init__(self, inp, shape, stride):
         self.output = pool.pool_2d(inp, shape, st = stride, ignore_border = True)
         self.f = theano.function([inp], self.output)
 
-
 class MeanSubtract:
-    def __init__(self, kernel_size):
+    def __init__(self, inp, kernel_size):
         self.kernel_size = kernel_size
         self.f = theano.function([inp], )
         self.filter_shape = (1, 1, self.kernel_size, self.kernel_size)
@@ -109,7 +108,6 @@ class MeanSubtract:
         self.output = inp - mean[:,:,mid:-mid,mid:-mid]
         self.f = theano.function([inp], self.output)
 
-
     def mean_filter(self):
         s = self.kernel_size**2
         x = repeat(1./s, s).reshape((self.kernel_size, self.kernel_size))
@@ -117,13 +115,12 @@ class MeanSubtract:
 
 
 class ForwardLayer:
-    def __init__(self, param_size, bias_size):
-<<<<<<< HEAD
+    def __init__(self, inp, input_size, output_size, activation):
         W_values = numpy.asarray(
             rng.uniform(
-                low=-numpy.sqrt(6. / (n_in + n_out)),
-                high=numpy.sqrt(6. / (n_in + n_out)),
-                size=(n_in, n_out)
+                low=-numpy.sqrt(6. / (input_size + output_size)),
+                high=numpy.sqrt(6. / (input_size + output_size)),
+                size=(input_size, output_size)
             ),
             dtype=theano.config.floatX
             )
@@ -132,43 +129,51 @@ class ForwardLayer:
 
         W = theano.shared(value=W_values, name='W', borrow=True)
 
-        b_values = numpy.zeros((n_out,), dtype=theano.config.floatX)
+        b_values = numpy.zeros((output_size,), dtype=theano.config.floatX)
         b = theano.shared(value=b_values, name='b', borrow=True)
 
         self.W = W
         self.b = b
 
-        self.output = T.dot(input, self.W) + self.b
+        self.output = activation(T.dot(input, self.W) + self.b)
         self.f = theano.function([inp], self.output)
-
+        self.params = [self.W, self.b]
 
 #TODO: Qinlan take forward layer, predict correct element in output
 class Task:
+    def __init__(self, inp, dimension_output, activation):
+        self.task_param_size = constants.FORWARD1_BIAS_SIZE
+        self.task_bias_size = dimension_output
+        self.forward = ForwardLayer(inp, self.task_param_size, self.task_bias_size, activation)
+        self.output = softmax(self.forward.output)
+        self.f = theano.function([inp], self.output)
+        self.params = self.forward.params
 
-    def __init__(self, dimension_output):
+    def train_on_instance(self, word, target):
+        pass
 
-
-    def train_on_instance(self, shared_embedding, word, target):
-
-    def predict_on_instance(self, shared_embedding, word, target):
-
-=======
-        self.W =
->>>>>>> dev
+    def predict_on_instance(self, word, target):
+        pass
 
 class MultitaskNetwork:
-    def __init__(self, config):
+    def __init__(self, config, X, y):
         self.config = config
         self.batch_size = config["batch_size"]
         self.learning_rate = config["learning_rate"]
 
-        self.conv1 = ConvolutionBuilder(constants.CONV1_PARAM_SIZE, constants.CONV1_PARAM_BOUND, constants.CONV1_BIAS_SIZE, 'conv1')
-        self.maxpool = Maxpool(constants.MAXPOOL_SHAPE, constants.MAXPOOL_STRIDE)
-        self.mean = MeanSubtract(constants.MEAN_KERNEL)
-        self.conv2 = ConvolutionBuilder(constants.CONV1_PARAM_SIZE, constants.CONV1_PARAM_BOUND, constants.CONV1_BIAS_SIZE, 'conv2')
-        self.forward = ForwardLayer(constants.FORWARD1_PARAM_SIZE, constants.FORWARD1_BIAS_SIZE)
+        # TODO: Reshape X to get input for our network
+        self.conv1 = ConvolutionBuilder(constants.CONV1_PARAM_SIZE,
+            constants.CONV1_PARAM_BOUND, constants.CONV1_BIAS_SIZE, 'conv1')
+        self.maxpool = Maxpool(self.conv1.output, constants.MAXPOOL_SHAPE, constants.MAXPOOL_STRIDE)
+        self.mean = MeanSubtract(self.maxpool.output, constants.MEAN_KERNEL)
+        self.conv2 = ConvolutionBuilder(self.mean.output, constants.CONV1_PARAM_SIZE,
+            constants.CONV1_PARAM_BOUND, constants.CONV1_BIAS_SIZE, 'conv2')
+        self.forward = ForwardLayer(self.conv2.output, constants.FORWARD1_PARAM_SIZE,
+            constants.FORWARD1_BIAS_SIZE)
 
         # TODO: Read self.input_file, assign values to vec and task_labels
 
+"""
     #TODO: unknown
     def training():
+"""
