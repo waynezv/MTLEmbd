@@ -15,7 +15,7 @@ from theano.tensor.signal import pool
 rng = np.random.RandomState(93492019)
 caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
 
-DIM_TASKS = {"word":100, "gender":2, "age":1}
+DIM_TASKS = {"word": 100, "sem_similarity": 50, "gender": 2, "age": 1}
 
 class CallerInfo:
     def __init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
@@ -188,16 +188,6 @@ class ForwardLayer:
         self.f = theano.function([inp], self.output)
         self.params = [self.W, self.b]
 
-#TODO: Qinlan take forward layer, predict correct element in output
-class Task:
-    def __init__(self, inp, task_filter_size, task_bias_size, activation=T.tanh):
-        self.task_filter_size = task_filter_size
-        self.task_bias_size = task_bias_size
-        self.forward = ForwardLayer(inp, self.task_filter_size, self.task_bias_size, activation)
-        self.output = softmax(self.forward.output)
-        self.f = theano.function([inp], self.output)
-        self.params = self.forward.params
-
 class MultitaskNetwork:
     def __init__(self, batch_size, X):
         self.batch_size = batch_size 
@@ -212,9 +202,41 @@ class MultitaskNetwork:
         self.conv2 = ConvolutionBuilder(self.mean.output, constants.CONV1_FILTER_SIZE,
             constants.CONV1_FILTER_BOUND, constants.CONV1_BIAS_SIZE, 'conv2')
         self.forward = ForwardLayer(self.conv2.output.flatten(2), constants.FORWARD1_FILTER_SIZE,
-            constants.FORWARD1_BIAS_SIZE)
+            constants.FORWARD1_BIAS_SIZE, "forward")
+
+        self.params = self.conv1.params + self.conv2.params + self.forward.params
 
         self.task_specific_components = dict()
+        for task in constants.TASKS:
+            self.task_specific_components[task] = ForwardLayer(forward.output,
+                (constants.SHARED_REPRESENTATION_SIZE, DIM_TASKS[task]), DIM_TASKS[task], task)
+            self.params = self.params + self.task_specific_components[task].params
+
+    def negative_log_likelihood(self, y, task):
+        """
+        Return the mean of the negative log-likelihood of the prediction
+        of this model under a given target distribution.
+
+        :type y: theano.tensor.TensorType
+        :param y: corresponds to a vector that gives for each example the
+                  correct label
+
+        Note: we use the mean instead of the sum so that
+              the learning rate is less dependent on the batch size
+        """
+        p_y_given_x = T.nnet.softmax(self.task_specific_components[task].output)
+        return -T.mean(T.log(p_y_given_x)[T.arange(y.shape[0]), y])
+
+    def mse(self, y, task):
+        """
+        Return the mean squared error of the prediction
+
+        :type y: theano.tensor.TensorType
+        :param y: corresponds to a matrix that gives for each example the
+                  output to be matched
+        """
+        output = self.task_specific_components[task].output
+        return T.mean((output - y)**2)
 
 def test_network():
     # Model training code

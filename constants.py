@@ -1,6 +1,6 @@
 import numpy as np
 
-TASKS = ["word", "speaker_id", "gender", "age", "education", "dialect"]
+TASKS = ["word", "sem_similarity", "speaker_id", "gender", "age", "education", "dialect"]
 FRAMES_PER_WORD = 200
 FRAME_SIZE = 40
 
@@ -19,6 +19,8 @@ CONV2_BIAS_SIZE = (8,)
 
 FORWARD1_FILTER_SIZE = (1024, 1024)
 FORWARD1_BIAS_SIZE = (1024,)
+
+SHARED_REPRESENTATION_SIZE = 1024
 
 # Training parameters
 BATCH_SIZE = 20
