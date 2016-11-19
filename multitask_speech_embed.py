@@ -15,6 +15,8 @@ from theano.tensor.signal import pool
 rng = np.random.RandomState(93492019)
 caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
 
+DIM_TASKS = {"word":100, "gender":2, "age":1}
+
 class CallerInfo:
     def __init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
         self.userid = userid
@@ -26,6 +28,7 @@ class CallerInfo:
 def load_caller_info():
     callers = [s.strip().split(',') for s in open('caller_tab.csv')]
     education_dict = {}
+    max_dialect = 0
 
     for caller in callers:
         call_id = int(caller[0])
@@ -36,13 +39,18 @@ def load_caller_info():
             gender = 1
         age = 1997 - int(callers[4])
         dialect = callers[5]
+        if dialect > max_dialect:
+            max_dialect = dialect
+
         education = callers[6]
         if education in education_dict:
             education = education_dict[education]
         else:
             education_dict[education] = len(education_dict) # ???
         caller_info_dic[call_id] = CallerInfo(userid, gender, age, education, dialect)
-
+    DIM_TASKS["dialect"] = max_dialect
+    DIM_TASKS["education"] = len(education_dict)
+    DIM_TASKS["speaker_id"] = len(caller_info_dic)
 
 class Instance:
     def __init__(self, filename, multitask_flag):
