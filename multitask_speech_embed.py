@@ -23,7 +23,6 @@ class CallerInfo:
         self.education = education
         self.dialect = dialect
 
-
 def load_caller_info():
     callers = [s.strip().split(',') for s in open('caller_tab.csv')]
     education_dict = {}
@@ -192,10 +191,8 @@ class Task:
         self.params = self.forward.params
 
 class MultitaskNetwork:
-    def __init__(self, config, X, y):
-        self.config = config
-        self.batch_size = config["batch_size"]
-        self.learning_rate = config["learning_rate"]
+    def __init__(self, batch_size, X):
+        self.batch_size = batch_size 
 
         # Reshape matrix of size (batch size, frames per word x frame size)
         inp = X.reshape((self.batch_size, 1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
@@ -209,7 +206,16 @@ class MultitaskNetwork:
         self.forward = ForwardLayer(self.conv2.output.flatten(2), constants.FORWARD1_FILTER_SIZE,
             constants.FORWARD1_BIAS_SIZE)
 
-"""
-    #TODO: unknown
-    def training():
-"""
+        self.task_specific_components = dict()
+
+def test_network():
+    # Model training code
+    print('... training')
+
+    # Allocate symbolic variables for data
+    X = T.matrix('X')
+    y = T.ivector('y')
+
+    network_input = X.reshape((constants.BATCH_SIZE, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
+ 
+    model = MultitaskNetwork(constants.BATCH_SIZE, network_input)
