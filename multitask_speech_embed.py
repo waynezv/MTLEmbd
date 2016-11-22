@@ -67,7 +67,6 @@ class Instance:
         self.vec = self.read_vec()
 
     def read_vec():
-        # TODO: Wenbo Read self.input_file, assign values to vec and task_labels
         with open(self.input_file, 'r') as f:
             word = f.readline()
             self.task_labels['word'] = word
@@ -212,7 +211,6 @@ class MultitaskNetwork:
         self.batch_size = batch_size
 
         # Reshape matrix of size (batch size, frames per word x frame size)
-        # TODO: truncate or pad frames
         inp = X
 
         self.conv1 = ConvolutionBuilder(inp, constants.CONV1_FILTER_SIZE,
@@ -311,8 +309,18 @@ def test_network():
         label = {'word':word, 'speaker_id':spk_id, 'gender':gender,
                     'age':age, 'education':education, 'dialect':dialect}
 
-        train_input.append(instance.vec)
-        train_label.append(label)
+        # truncate or pad word feat to FRAMES_PER_WORD = 200
+        tmp_vec = np.zeros((constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
+        vec = np.array(instance.vec)
+        ins_vec_dim = vec.shape[0]
+        if ins_vec_dim > constants.FRAMES_PER_WORD:
+            ins_vec_dim = constants.FRAMES_PER_WORD
+        tmp_vec[:ins_vec_dim,:] = vec[:ins_vec_dim,:]
+        # TODO: Single task for now
+        task_label = label[single_task]
+        train_input.append(tmp_vec)
+        train_label.append(single_task)
+
 
     train_input_shared = T.shared(np.asarray(train_input,
                                         dtype=T.config.floatX),
@@ -324,10 +332,9 @@ def test_network():
 
     # Allocate symbolic variables for data
     X = T.ftensor4('X')
-    y = T.ivector('y') #TODO: y type not agree
+    y = T.ivector('y') #TODO: y type not agree, make it single task for now
     batch_index = T.lscalar()  # index to a [mini]batch
 
-    #TODO: input size not equal
     network_input = X.reshape((constants.BATCH_SIZE, 1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
 
     model = MultitaskNetwork(constants.BATCH_SIZE, network_input, multitask_flag=task_flag, task=single_task)
