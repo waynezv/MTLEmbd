@@ -150,7 +150,7 @@ unordered_map<int, Speaker> load_speakers(string speaker_filename) {
 
 vector<Instance> read_instances(string instances_filename) {
   vector<Instance> instances;
-  ifstream in(instances_filename);
+  ifstream in("../data/"+instances_filename);
   {
     cerr << "Reading instances data from " << instances_filename << "...\n";
     string line;
