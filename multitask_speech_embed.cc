@@ -30,6 +30,7 @@ Dict education_d;
 Dict dialect_d;
 Dict word_d;
 
+
 class Speaker {
   public:
     string speaker_id;
@@ -49,7 +50,7 @@ class Instance {
     vector<float> read_vec(unordered_map<string, Speaker> speakers_info);
 };
 
-enum Task { WORD, SEM_SIMILARITY, SPEAKER_ID, GENDER, AGE, EDUCATION, DIALECT };
+enum Task { WORD=0, SEM_SIMILARITY=1, SPEAKER_ID=2, GENDER=3, AGE=4, EDUCATION=5, DIALECT=6 };
 
 vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info) {
   vector<float> input_vector;
@@ -217,8 +218,19 @@ struct MTLBuilder {
       }
     }
 
-    Expression loss_against_task(ComputationGraph* cg, Task task, Instance instance) {
-      //blah
+    Expression loss_against_task(ComputationGraph& cg, Task task, Instance instance,
+        unordered_map<string, Speaker> speakers_info) {
+      vector<float> fb = instance.read_vec(speakers_info);
+      unsigned fb_size = fb.size();
+      Expression raw_input = input(cg, {fb_size/40, 40}, fb);
+      Expression input = transpose(raw_input);
+
+      vector<Expression> conv1_out;
+      for (int i = 0; i < CONV1_SIZE; ++i) {
+        conv1_out.push_back(conv1d_wide(input, parameter(cg, p_ifilts[i])));
+        Expression test = conv1_out[i]*input;
+      }      
+
     }
 };
 
@@ -239,4 +251,33 @@ int main(int argc, char** argv) {
   word_d.set_unk("UNK");
 
   vector<Instance> instances = read_instances("../word_feat.filelist");
+  vector<int> order;
+
+  Model model;
+  MTLBuilder mtl(&model);
+
+  for (int i = 0; i < instances.size(); ++i) {
+    order.push_back(i);
+  }
+
+  int iter = -1;
+  int dev_every_n = 300;
+
+  if (TO_TRAIN) {
+    ++iter;
+    while(true) {
+      cerr << "**SHUFFLE\n";
+      random_shuffle(order.begin(), order.end());
+      
+      for (int i = 0; i < instances.size(); ++i) {
+        ComputationGraph cg;  
+        Instance instance = instances[order[i]];
+        Task task = static_cast<Task>(rand()%7);
+        Expression error = mtl.loss_against_task(cg, task, instance, speakers_info);
+
+      }
+
+    }
+
+  }
 }
