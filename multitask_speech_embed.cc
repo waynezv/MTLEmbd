@@ -27,6 +27,7 @@ class Instance {
     string input_filename; // name of file containing data for the instance
     string word;
     vector<float> glove_sem_vector;
+    vector<float> input_vector;
     Speaker speaker;
 
     void read_vec(unordered_map<int, Speaker> speakers_info);
@@ -36,6 +37,8 @@ void Instance::read_vec(unordered_map<int, Speaker> speakers_info) {
   string w;
   string speaker_str;
   int speaker_id;
+  string line;
+  string substr;
   ifstream in(input_filename);
   {
     getline(in, w);
@@ -43,6 +46,15 @@ void Instance::read_vec(unordered_map<int, Speaker> speakers_info) {
     getline(in, speaker_str);
     speaker_id = stoi(speaker_str);
     speaker = speakers_info[speaker_id];
+    vector<float> instance_vector; 
+    while(getline(in, line)) {
+      istringstream iss(line);
+      while(iss.good()) {
+        getline(iss, substr, ',');
+        instance_vector.push_back(stof(substr));
+      }
+    }
+    input_vector = instance_vector;
   }
 }
 
