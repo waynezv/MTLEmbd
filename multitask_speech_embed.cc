@@ -31,6 +31,17 @@ Dict dialect_d;
 Dict word_d;
 
 
+string strip_string(string s, string to_strip) {
+  size_t str_begin = s.find_first_not_of(to_strip);
+  size_t str_end = s.find_last_not_of(to_strip);
+  size_t str_range = str_end - str_begin + 1;
+  if (str_begin == string::npos || str_end == string::npos || str_range <= 0) {
+    return "";
+  }
+  return s.substr(str_begin, str_range);
+}
+
+
 class Speaker {
   public:
     string speaker_id;
@@ -69,24 +80,14 @@ vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info) {
     vector<float> instance_vector; 
     while(getline(in, line)) {
       istringstream iss(line);
-      while(iss.good()) {
-        getline(iss, substr, ',');
+      line = strip_string(line, " ");
+      while(getline(iss, substr, ' ')) {
         instance_vector.push_back(stof(substr));
       }
     }
     input_vector = instance_vector;
   }
   return input_vector;
-}
-
-string strip_string(string s, string to_strip) {
-  size_t str_begin = s.find_first_not_of(to_strip);
-  size_t str_end = s.find_last_not_of(to_strip);
-  size_t str_range = str_end - str_begin + 1;
-  if (str_begin == string::npos || str_end == string::npos || str_range <= 0) {
-    return "";
-  }
-  return s.substr(str_begin, str_range);
 }
 
 unordered_map<string, Speaker> load_speakers(string speaker_filename) {
@@ -105,8 +106,7 @@ unordered_map<string, Speaker> load_speakers(string speaker_filename) {
     while(getline(in, line)) {
       istringstream iss(line);
       vector<string> vect;
-      while(iss.good()) {
-        getline(iss, substr, ',');
+      while(getline(iss, substr, ',')) {
         vect.push_back(substr);
       }
 
@@ -163,8 +163,7 @@ unordered_map<string, vector<float>> load_glove_vectors(string glove_filename) {
 
       vector<float> gloVe;
       string substr;
-      while(iss.good()) {
-        getline(iss, substr, ' '); 
+      while(getline(iss, substr, ' ')) {
         gloVe.push_back(stof(substr));
       }
       word_to_gloVe[word] = gloVe;
@@ -175,13 +174,13 @@ unordered_map<string, vector<float>> load_glove_vectors(string glove_filename) {
 
 vector<Instance> read_instances(string instances_filename) {
   vector<Instance> instances;
-  ifstream in("../data/"+instances_filename);
+  ifstream in(instances_filename);
   {
     cerr << "Reading instances data from " << instances_filename << "...\n";
     string line;
     while(getline(in, line)) {
       Instance instance;
-      instance.input_filename = line;
+      instance.input_filename = ("../data/"+line);
       instances.push_back(instance);
     }
   }
@@ -214,7 +213,6 @@ struct MTLBuilder {
       }
       for (int i = 0; i < CONV2_SIZE; ++i) {
         p_cfilts.push_back(model->add_parameters({ROWS2, CONV1_SIZE}));
-
       }
     }
 
@@ -224,10 +222,12 @@ struct MTLBuilder {
       unsigned fb_size = fb.size();
       Expression raw_input = input(cg, {fb_size/40, 40}, fb);
       Expression input = transpose(raw_input);
+      vector<float> blah = as_vector(cg.incremental_forward(input));
 
       vector<Expression> conv1_out;
       for (int i = 0; i < CONV1_SIZE; ++i) {
         conv1_out.push_back(conv1d_wide(input, parameter(cg, p_ifilts[i])));
+
         Expression test = conv1_out[i]*input;
       }      
 
