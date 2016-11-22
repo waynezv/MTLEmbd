@@ -26,6 +26,8 @@ SHARED_REPRESENTATION_SIZE = 1024
 BATCH_SIZE = 20
 IMPROVEMENT_THRESHOLD = 0.995
 VALIDATION_FREQUENCY = 10
+LEARNING_RATE = 0.01
 
 # Training miscellaneous
-DATA_PATH = ''.join('/mingback/715Proj/small_dataset_hard_align')
+#DATA_PATH = ''.join('/mingback/715Proj/small_dataset_hard_align') # on server 252
+DATA_PATH = ''.join('/home/caiwch/eesen/asr_egs/swbd/v1/fbank/fbank_txt/tmp') # on server 222

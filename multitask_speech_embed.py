@@ -6,8 +6,10 @@ import argparse as agp
 
 import constants
 import numpy as np
+
 import theano
 import theano.tensor as T
+from theano import shared, config, _asarray, function
 from theano.tensor.nnet import conv2d
 from theano.tensor.nnet.nnet import softmax
 from theano.tensor.signal import pool
@@ -38,16 +40,16 @@ def load_caller_info():
             gender = 0
         else:
             gender = 1
-        age = 1997 - int(callers[4])
+        age = 1997 - int(caller[4])
         dialect = callers[5]
         if dialect > max_dialect:
             max_dialect = dialect
 
-        education = callers[6]
+        education = caller[6]
         if education in education_dict:
             education = education_dict[education]
         else:
-            education_dict[education] = len(education_dict) # ???
+            education_dict[education] = len(education_dict)
         caller_info_dic[call_id] = CallerInfo(call_id, gender, age, education, dialect)
 
     DIM_TASKS["dialect"] = max_dialect
@@ -62,24 +64,27 @@ class Instance:
         """
         self.input_file = filename  # Name of file containing data for the instance
         self.vec = []               # Vector representation for network input
-        self.multitask_flag = 0     # Flag for whether to train on multiple tasks
+        self.multitask_flag = multitask_flag     # Flag for whether to train on multiple tasks
         self.task_labels = dict()   # Labels for each task for the instance
         self.vec = self.read_vec()
 
-    def read_vec():
+    def read_vec(self):
         with open(self.input_file, 'r') as f:
             word = f.readline()
             self.task_labels['word'] = word
-            spk_id = f.readline()
+            spk_id = int(f.readline().strip())
             self.task_labels['speaker_id'] = spk_id
-            fbank = np.array(f.readlines()).astype(float)
+            fbank = []
+            for line in f:
+                fbank.append(np.array(line.split()).astype(float))
+            fbank = np.array(fbank)
             assert fbank.shape[1] == 40, 'Wrong fbank dimension! \
                 Expect 40, got {:d}'.format(fbank.shape[1])
-            self.vec = fbank
+            return fbank
 
 
 class ConvolutionBuilder:
-    def __init__(self, inp, filter_size, bias_size, stride, name):
+    def __init__(self, inp, filter_size, bias_size, name, **kwargs):
         """
         Allocate a convolutional layer with shared variable internal parameters
 
@@ -121,6 +126,10 @@ class ConvolutionBuilder:
                 ),
             dtype = inp.dtype), name = name + '_b', borrow=True)
 
+        if 'stride' in kwargs:
+            stride = kwargs['stride']
+        else:
+            stride = (1,1)
         self.out = conv2d(input=inp, filters=self.W, subsample=stride)
         self.output = T.nnet.relu(self.out + self.b.dimshuffle('x', 0, 'x', 'x'))
         self.f = theano.function([inp], self.output)
@@ -135,20 +144,35 @@ class Maxpool:
 
 class MeanSubtract:
     def __init__(self, inp, kernel_size):
+        """
+        :type kernel_size: tuple or list of length 2
+        :para kernel_size:
+        """
         self.kernel_size = kernel_size
-        self.filter_shape = (1, 1, self.kernel_size, self.kernel_size)
-        self.filters = self.mean_filter(self.kernel_size).reshape(filter_shape)
-        self.filters = theano.shared(_asarray(filters, dtype=floatX), borrow=True)
+        #inp_shape = (inp.shape[0], 1, inp.shape[1], inp.shape[2])
+        #inp = inp.reshape(inp_shape).astype(theano.config.floatX)
 
-        self.mean = conv2d(input=inp, filters=filters, filter_shape=filter_shape,
-                        border_mode='full')
-        self.mid = int(floor(kernel_size/2.))
-        self.output = inp - mean[:,:,mid:-mid,mid:-mid]
+        self.filter_shape = (1, 1, self.kernel_size[0], self.kernel_size[1])
+        self.filters = self.mean_filter().reshape(self.filter_shape)
+        #self.filters = theano.shared(_asarray(self.filters, dtype=theano.config.floatX),
+        #        borrow=True)
+        self.filters = theano.shared(np.asarray(self.filters,
+                                            dtype='float64'),
+                                borrow=True)
+
+        self.mean = conv2d(input=inp, filters=self.filters,
+                #input_shape=inp_shape,
+                filter_shape=self.filter_shape,
+                border_mode='full') # TODO: might have bug
+        mid = int(np.floor(self.kernel_size[0]/2.))
+        new_inp = inp - self.mean[:,:,mid:-mid,mid:-mid]
+
+        self.output = new_inp
         self.f = theano.function([inp], self.output)
 
     def mean_filter(self):
-        s = self.kernel_size**2
-        x = repeat(1./s, s).reshape((self.kernel_size, self.kernel_size))
+        s = np.power(self.kernel_size[0], 2)
+        x = np.repeat(1./s, s).reshape((self.kernel_size[0], self.kernel_size[1]))
         return x
 
 
@@ -173,10 +197,10 @@ class ForwardLayer:
         input_size = np.prod(filter_size)
         output_size = np.prod(bias_size)
 
-        W_values = numpy.asarray(
+        W_values = np.asarray(
             rng.uniform(
-                low=-numpy.sqrt(6. / (input_size + output_size)),
-                high=numpy.sqrt(6. / (input_size + output_size)),
+                low=-np.sqrt(6. / (input_size + output_size)),
+                high=np.sqrt(6. / (input_size + output_size)),
                 size=filter_size
             ),
             dtype=theano.config.floatX
@@ -187,10 +211,10 @@ class ForwardLayer:
 
         self.W = theano.shared(value=W_values, name=name+'_W', borrow=True)
 
-        b_values = numpy.zeros(bias_size, dtype=theano.config.floatX)
+        b_values = np.zeros(bias_size, dtype=theano.config.floatX)
         self.b = theano.shared(value=b_values, name=name+'_b', borrow=True)
 
-        self.output = activation(T.dot(inp, self.W) + self.b)
+        self.output = activation(T.dot(inp.T, self.W) + self.b)
         self.f = theano.function([inp], self.output)
         self.params = [self.W, self.b]
 
@@ -214,16 +238,15 @@ class MultitaskNetwork:
         inp = X
 
         self.conv1 = ConvolutionBuilder(inp, constants.CONV1_FILTER_SIZE,
-            constants.CONV1_BIAS_SIZE, constants.CONV1_STRIDE, 'conv1')
+            constants.CONV1_BIAS_SIZE, 'conv1', stride=constants.CONV1_STRIDE)
         self.maxpool = Maxpool(self.conv1.output, constants.MAXPOOL_SHAPE, constants.MAXPOOL_STRIDE)
         self.mean = MeanSubtract(self.maxpool.output, constants.MEAN_KERNEL)
         self.conv2 = ConvolutionBuilder(self.mean.output, constants.CONV1_FILTER_SIZE,
-            constants.CONV1_FILTER_BOUND, constants.CONV1_BIAS_SIZE, 'conv2')
+                constants.CONV1_BIAS_SIZE, 'conv2')
         self.forward = ForwardLayer(self.conv2.output.flatten(2), constants.FORWARD1_FILTER_SIZE,
             constants.FORWARD1_BIAS_SIZE, "forward")
 
-        self.params = self.conv1.params + self.conv2.params + self.forward.params
-
+        self.params = self.forward.params + self.conv2.params + self.conv1.params
         if  self.multitask_flag == 0:
             task = kwargs['task']
             self.task_specific_components = dict()
@@ -231,14 +254,15 @@ class MultitaskNetwork:
             self.task_specific_grad = dict()
             self.task_specific_components[task] = ForwardLayer(self.forward.output,
                                                                (constants.SHARED_REPRESENTATION_SIZE, DIM_TASKS[task]), DIM_TASKS[task], task)
-            self.params += self.task_specific_components[task].params
+            self.params = self.task_specific_components[task].params + self.params
 
             # Loss and gradient
-            loss = self.negative_log_likelihood(y[task], task)
-            grad = T.grad(loss, self.params)
+            self.loss = self.negative_log_likelihood(y, task)
+            self.grads = T.grad(cost=self.loss, wrt=self.params)
 
-            self.task_specific_loss[task] = loss
-            self.task_specific_grad[task] = grad
+            self.task_specific_loss[task] = self.loss
+            self.task_specific_grad[task] = self.grads
+
 
         else:
             self.task_specific_components = dict()
@@ -283,6 +307,13 @@ class MultitaskNetwork:
         return T.mean((output - y)**2)
 
 
+def load_word_dict(file='word_dict.txt'):
+    word_dict = {}
+    for w in open(file, 'r'):
+        t = w.strip().split(',')
+        word_dict[t[0]] =  int(t[1])
+    return word_dict
+
 
 def test_network():
     # Model training code
@@ -292,21 +323,22 @@ def test_network():
     task_flag = 0
     single_task = 'word'
     load_caller_info()
-    TASK_DIM = DIM_TASKS[task]
+    TASK_DIM = DIM_TASKS[single_task]
     train_input = []
     train_label = []
 
+    word_dict = load_word_dict()
     word_feat_filelist = [s.strip() for s in open('word_feat.filelist')]
     for i in xrange(TASK_DIM):
-        fbank_file = os.path.join(constants.data_path, word_feat_filelist[i])
+        fbank_file = os.path.join(constants.DATA_PATH, word_feat_filelist[i])
         instance = Instance(fbank_file, task_flag)
-        word = instance.task_labels['word']
+        word = instance.task_labels['word'].strip()
         spk_id = instance.task_labels['speaker_id']
         gender = caller_info_dic[spk_id].gender
         age = caller_info_dic[spk_id].age
         education = caller_info_dic[spk_id].education
         dialect = caller_info_dic[spk_id].dialect
-        label = {'word':word, 'speaker_id':spk_id, 'gender':gender,
+        label = {'word':word_dict[word], 'speaker_id':spk_id, 'gender':gender,
                     'age':age, 'education':education, 'dialect':dialect}
 
         # truncate or pad word feat to FRAMES_PER_WORD = 200
@@ -319,41 +351,59 @@ def test_network():
         # TODO: Single task for now
         task_label = label[single_task]
         train_input.append(tmp_vec)
-        train_label.append(single_task)
+        train_label.append(task_label)
 
 
-    train_input_shared = T.shared(np.asarray(train_input,
-                                        dtype=T.config.floatX),
+    train_input_shared = theano.shared(np.asarray(train_input,
+                                        dtype=theano.config.floatX),
                             borrow=True)
-    train_label_shared = T.cast(T.shared(np.asarray(train_label,
-                                    dtype=T.config.floatX),
+    train_label_shared = T.cast(theano.shared(np.asarray(train_label,
+                                    dtype=theano.config.floatX),
                             borrow=True),
                         'int32')
 
     # Allocate symbolic variables for data
-    X = T.ftensor4('X')
-    y = T.ivector('y') #TODO: y type not agree, make it single task for now
+    X = T.dtensor4('X')
+    y = T.lvector('y') #TODO: y type not agree, make it single task for now
     batch_index = T.lscalar()  # index to a [mini]batch
 
     network_input = X.reshape((constants.BATCH_SIZE, 1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
+    network_label = y
 
-    model = MultitaskNetwork(constants.BATCH_SIZE, network_input, multitask_flag=task_flag, task=single_task)
+    model = MultitaskNetwork(constants.BATCH_SIZE, network_input, network_label,
+            multitask_flag=task_flag, task=single_task)
 
-    updates = [(param_i, param_i - learning_rate * grad_i)
-               for param_i, grad_i in zip(model.params, model.grad)]
+    updates = [(param_i, param_i - constants.LEARNING_RATE * grad_i)
+            for param_i, grad_i in zip(model.params, model.task_specific_grad[single_task])]
 
-    train_net = T.function(
-        [batch_index],
+# Single batch train
+    train_net = theano.function(
+            [network_input, network_label],
+            model.loss,
+            updates = updates
+            )
+
+    train_input = np.array(train_input).reshape((-1,1,constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
+    train_label = np.array(train_label)
+    loss = train_net(train_input[:20,:,:], train_label[:20])
+    print(loss)
+
+#Batch train
+    #train_net = theano.function(
+    #    [batch_index],
         # model.task_specific_loss,
-        model.negative_log_likelihood(y[single_task], single_task),
-        updates = updates,
-        givens = {
-            X: train_input_shared[batch_index*model.batch_size : (batch_index+1)*model.batch_size],
-            y: train_label_shared[batch_index*model.batch_size : (batch_index+1)*model.batch_size]
-        }
-    )
+    #    model.loss,
+    #    updates = updates,
+    #    givens = {
+    #        network_input: train_input_shared[batch_index*model.batch_size : (batch_index+1)*model.batch_size],
+    #        network_label: train_label_shared[batch_index*model.batch_size : (batch_index+1)*model.batch_size]
+    #    }
+    #)
 
-    num_train_batches = train_input_shared.get_value(borrow=True).shape[0] // model.batch_size
-    for batch_ind in xrange(num_train_batches):
-        loss = train_net(batch_ind)
-        print(loss)
+    #num_train_batches = train_input_shared.get_value(borrow=True).shape[0] // model.batch_size
+    #for batch_ind in xrange(num_train_batches):
+    #    loss = train_net(batch_ind)
+    #    print(loss)
+
+if __name__ == '__main__':
+    test_network()
