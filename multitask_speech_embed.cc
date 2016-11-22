@@ -13,10 +13,17 @@ using namespace std;
 using namespace dynet;
 using namespace dynet::expr;
 
-bool train = true;
+bool TO_TRAIN = true;
 string model_name = "model.model";
-
-
+int EMBEDDING_SIZE = 1024;
+int CONV_OUTPUT_DIM = 1024;
+int GLOVE_DIM = 50;
+int CONV1_FILTERS = 10
+int CONV1_SIZE = 10
+int CONV2_FILTERS = 10;
+int CONV2_SIZE = 10;
+int ROWS1 = 5;
+int ROWS2 = 5
 class Speaker {
   public:
     int speaker_id;
@@ -128,11 +135,37 @@ unordered_map<int, Speaker> LoadSpeakers(string speaker_filename) {
 
 Struct MTLBuilder {
   vector<Parameter> p_ifilts; //filters for the 1dconv over the input
-  vector<Parameter> p_cfilts; //filters 
+  vector<Parameter> p_cfilts; //filters for the 1dconv over the (altered) output of the first convolution
   Parameter p_c2we; //the output of the convolution to the word embedding
   Parameter p_we2sr; //the word embedding to speech recognition
-  Parameter p_
+  Parameter p_we2ss; //word embedding to the semantic similarity
+  Parameter p_we2id; //word embedding to the speaker id
+  Parameter p_we2gen; //word embedding to gender
+  Parameter p_we2age; //word embedding to age
+  Parameter p_we2edu; //word embedding to education
+  Parameter p_we2dia;  //word embedding to dialect
 
+  explicit MTLBuilder(Model* model) :
+    p_c2we(model->add_parameters({EMBEDDING_SIZE, CONV_OUTPUT_DIM})),
+    p_we2sr(model->add_parameters({word_d.size(), EMBEDDING_SIZE})),
+    p_we2ss(model->add_parameters({GLOVE_DIM, EMBEDDING_SIZE})),
+    p_we2id(model->add_parameters({speaker_d.size(), EMBEDDING_SIZE})),
+    p_we2gen(model->add_parameters({2, EMBEDDING_SIZE})),
+    p_we2age(model->add_parameters({1, EMBEDDING_SIZE})),
+    p_we2edu(model->add_parameters({education_d.size(), EMBEDDING_SIZE})),
+    p_we2dia(model->add_parameters({dialect_d.size(), EMBEDDING_SIZE})) {
+      for (int i = 0; i < CONV1_SIZE; ++i) {
+        p_ifilts.push_back(model->add_parameters({ROWS1, CONV1_SIZE}));
+      }
+      for (int i = 0; i < CONV2_SIZE; ++i) {
+        p_cfilts.push_back(model->add_parameters({ROWS2, CONV1_SIZE}));
+
+      }
+    }
+
+    Expression loss_against_task(ComputationGraph* cg, Task task, Instance instance) {
+      //blah
+    }
 }
 
 
