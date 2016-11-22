@@ -24,6 +24,8 @@ unsigned CONV2_FILTERS = 10;
 unsigned CONV2_SIZE = 10;
 unsigned ROWS1 = 5;
 unsigned ROWS2 = 5;
+unsigned INPUT_SIZE = 100;
+unsigned FBANK_DIM = 40;
 
 Dict speaker_d;
 Dict education_d;
@@ -76,18 +78,34 @@ vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info,
     string substr;
     getline(in, w);
     word = w;
-    glove_sem_vector = word_to_glove[word];
+    glove_sem_vector = word_to_gloVe[word];
     getline(in, speaker_str);
     speaker_id = speaker_str;
     speaker = speakers_info[speaker_id];
-    vector<float> instance_vector; 
+    vector<float> instance_vector;
+    int count = 0;
     while(getline(in, line)) {
+      // Cutting
+      if (count >= INPUT_SIZE) {
+        break;
+      }
+
       istringstream iss(line);
       line = strip_string(line, " ");
       while(getline(iss, substr, ' ')) {
         instance_vector.push_back(stof(substr));
       }
+      count += 1;
     }
+
+    // Padding
+    while (count < INPUT_SIZE) {
+      for (int i = 0; i < FBANK_DIM; ++i) {
+        instance_vector.push_back(0.0);
+      }
+      count += 1;
+    }
+
     input_vector = instance_vector;
   }
   return input_vector;
