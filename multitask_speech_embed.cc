@@ -19,12 +19,14 @@ unsigned EMBEDDING_SIZE = 1024;
 unsigned CONV_OUTPUT_DIM = 1024;
 unsigned GLOVE_DIM = 50;
 unsigned CONV1_FILTERS = 10;
-unsigned CONV1_SIZE = 10;
-unsigned CONV2_FILTERS = 10;
-unsigned CONV2_SIZE = 10;
+unsigned CONV1_SIZE = 9;
+unsigned CONV2_FILTERS = 5;
+unsigned CONV2_SIZE = 5;
 unsigned ROWS1 = 40;
-unsigned ROWS2 = 5;
-unsigned K_1 = 2;
+unsigned ROWS2 = 20;
+unsigned K_1 = 36;
+//unsigned K_2 = 36;
+
 
 unsigned INPUT_SIZE = 100;
 unsigned FBANK_DIM = 40;
@@ -250,10 +252,19 @@ struct MTLBuilder {
 
       vector<Expression> conv1_out;
       for (int i = 0; i < CONV1_FILTERS; ++i) {
-        conv1_out.push_back(conv1d_narrow(input, parameter(cg, p_ifilts[i])));
+        conv1_out.push_back(conv1d_wide(input, parameter(cg, p_ifilts[i])));
       }
+
       Expression s = rectify(kmax_pooling(fold_rows(sum(conv1_out),2), K_1));
-      s*input;
+
+      vector<Expression> conv2_out;
+      for (int i = 0; i < CONV1_FILTERS; ++i) {
+        conv2_out.push_back(conv1d_wide(input, parameter(cg, p_ifilts[i])));
+      }
+
+      Expression t = rectify(fold_rows(sum(conv2_out),2));
+      t*input;
+
     }
 };
 
