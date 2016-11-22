@@ -16,7 +16,7 @@ using namespace dynet::expr;
 bool TO_TRAIN = true;
 string model_name = "model.model";
 unsigned EMBEDDING_SIZE = 1024;
-unsigned CONV_OUTPUT_DIM = 1024;
+unsigned CONV_OUTPUT_DIM = 400;
 unsigned GLOVE_DIM = 50;
 unsigned CONV1_FILTERS = 10;
 unsigned CONV1_SIZE = 9;
@@ -102,10 +102,11 @@ vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info,
       count += 1;
     }
 
+    vector<float> padded_vector;
+
     // Padding
     int to_pad = INPUT_SIZE - count;
     if (to_pad >= 1) {
-      vector<float> padded_vector;
       for (int i = 0; i < to_pad/2; ++i) {
         for (int j = 0; j < FBANK_DIM; ++j) {
           padded_vector.push_back(0.0);
@@ -123,6 +124,9 @@ vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info,
         }
         count += 1;
       }
+    }
+    else {
+      padded_vector = instance_vector;
     }
 
     input_vector = padded_vector;
@@ -241,6 +245,12 @@ vector<Instance> read_instances(string instances_filename) {
   return instances;
 }
 
+Expression calc_loss_with_forward(ComputationGraph& cg, Expression embedding, Parameter param, int correct) {
+  Expression output = parameter(cg, param)*embedding;
+  Expression loss = pickneglogsoftmax(output, correct);
+  return loss;
+}
+
 struct MTLBuilder {
   vector<Parameter> p_ifilts; //filters for the 1dconv over the input
   vector<Parameter> p_cfilts; //filters for the 1dconv over the (altered) output of the first convolution
@@ -266,9 +276,10 @@ struct MTLBuilder {
         p_ifilts.push_back(model->add_parameters({ROWS1, CONV1_SIZE}));
       }
       for (int i = 0; i < CONV2_FILTERS; ++i) {
-        p_cfilts.push_back(model->add_parameters({ROWS2, CONV1_SIZE}));
+        p_cfilts.push_back(model->add_parameters({ROWS2, CONV2_SIZE}));
       }
     }
+
 
     Expression loss_against_task(ComputationGraph& cg, Task task, Instance instance,
         unordered_map<string, Speaker> speakers_info,
@@ -276,24 +287,52 @@ struct MTLBuilder {
       vector<float> fb = instance.read_vec(speakers_info, word_to_gloVe);
       unsigned fb_size = fb.size();
       Expression raw_input = input(cg, {fb_size/40, 40}, fb);
-      Expression input = transpose(raw_input);
-      vector<float> blah = as_vector(cg.incremental_forward(input));
+      Expression inp = transpose(raw_input);
+      vector<float> blah = as_vector(cg.incremental_forward(inp));
 
       vector<Expression> conv1_out;
       for (int i = 0; i < CONV1_FILTERS; ++i) {
-        conv1_out.push_back(conv1d_wide(input, parameter(cg, p_ifilts[i])));
+        conv1_out.push_back(conv1d_wide(inp, parameter(cg, p_ifilts[i])));
       }
 
       Expression s = rectify(kmax_pooling(fold_rows(sum(conv1_out),2), K_1));
-
       vector<Expression> conv2_out;
-      for (int i = 0; i < CONV1_FILTERS; ++i) {
-        conv2_out.push_back(conv1d_wide(input, parameter(cg, p_ifilts[i])));
+      for (int i = 0; i < CONV2_FILTERS; ++i) {
+        conv2_out.push_back(conv1d_wide(s, parameter(cg, p_cfilts[i])));
       }
 
       Expression t = rectify(fold_rows(sum(conv2_out),2));
-      t*input;
+      Expression flattened_t = reshape(t, {400});
 
+      Expression embedding = parameter(cg, p_c2we)*flattened_t;
+
+
+      Expression loss;
+      if (task == SEM_SIMILARITY) {
+        Expression output =parameter(cg, p_we2ss)*embedding;
+        loss = squared_distance(output, input(cg, {GLOVE_DIM}, instance.glove_sem_vector));
+      }
+      else if (task == AGE) {
+        Expression output = parameter(cg, p_we2age)*embedding;
+        loss = squared_distance(output, input(cg, instance.speaker.age));
+      }
+      else if (task == GENDER) {
+        loss = calc_loss_with_forward(cg, embedding, p_we2gen, instance.speaker.gender);
+      }
+      else if (task == WORD) {
+        loss = calc_loss_with_forward(cg, embedding, p_we2sr, word_d.convert(instance.word));
+      }
+      else if (task == SPEAKER_ID) {
+        loss = calc_loss_with_forward(cg, embedding, p_we2id, speaker_d.convert(instance.speaker.speaker_id));
+      }
+      else if (task == EDUCATION) {
+        loss = calc_loss_with_forward(cg, embedding, p_we2edu, education_d.convert(instance.speaker.education));
+      }
+      else {
+        assert(task == DIALECT);
+        loss = calc_loss_with_forward(cg, embedding, p_we2dia, dialect_d.convert(instance.speaker.dialect));
+      }
+      return loss;
     }
 };
 
@@ -337,7 +376,7 @@ int main(int argc, char** argv) {
       for (int i = 0; i < instances.size(); ++i) {
         ComputationGraph cg;  
         Instance instance = instances[order[i]];
-        Task task = static_cast<Task>(rand()%7);
+        Task task = static_cast<Task>(rand()%6 + 1);
         Expression error = mtl.loss_against_task(cg, task, instance, speakers_info,
             word_to_gloVe);
       }
