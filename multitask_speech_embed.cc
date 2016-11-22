@@ -119,13 +119,13 @@ vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info,
 
       while (count < INPUT_SIZE) {
         for (int j = 0; j < FBANK_DIM; ++j) {
-          instance_vector.push_back(0.0);
+          padded_vector.push_back(0.0);
         }
         count += 1;
       }
     }
 
-    input_vector = instance_vector;
+    input_vector = padded_vector;
   }
   return input_vector;
 }
