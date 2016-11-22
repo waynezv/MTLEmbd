@@ -38,6 +38,8 @@ class Instance {
     void read_vec(unordered_map<int, Speaker> speakers_info);
 };
 
+enum Task { WORD, SEM_SIMILARITY, SPEAKER_ID, GENDER, AGE, EDUCATION, DIALECT };
+
 void Instance::read_vec(unordered_map<int, Speaker> speakers_info) {
   string w;
   string speaker_str;
