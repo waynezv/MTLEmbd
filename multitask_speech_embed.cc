@@ -18,12 +18,12 @@ string model_name = "model.model";
 int EMBEDDING_SIZE = 1024;
 int CONV_OUTPUT_DIM = 1024;
 int GLOVE_DIM = 50;
-int CONV1_FILTERS = 10
-int CONV1_SIZE = 10
+int CONV1_FILTERS = 10;
+int CONV1_SIZE = 8;
 int CONV2_FILTERS = 10;
 int CONV2_SIZE = 10;
-int ROWS1 = 5;
-int ROWS2 = 5
+int ROWS1 = 40;
+int ROWS2 = 4;
 
 Dict speaker_d;
 Dict education_d;
@@ -176,8 +176,15 @@ Struct MTLBuilder {
       }
     }
 
-    Expression loss_against_task(ComputationGraph* cg, Task task, Instance instance) {
-      //blah
+    Expression loss_against_task(ComputationGraph& cg, Task task, Instance instance) {
+      Expression raw_input = input(cg, {instance.input_vector.size()/40, 40}, input_vector);
+      Expression input = transpose(raw_input);
+
+      vector<Expression> conv1_out;
+      for (int i = 0; i < CONV1_SIZE; ++i) {
+        conv1_out.push_back(conv1d_wide(input, parameter(cg, p_ifilts[i])));
+      }      
+
     }
 }
 
@@ -201,4 +208,19 @@ int main(int argc, char** argv) {
   education_d.set_unk("UNK");
   dialect_d.set_unk("UNK");
   word_d.set_unk("UNK");
+
+  vector<int> order;
+  for (int i = 0; i < instances.size(); ++i) {
+    order.push_back(i);
+  }
+
+  int iter = -1;
+  if (TO_TRAIN) {
+    ++iter;
+    while(true) {
+      
+
+    }
+
+  }
 }
