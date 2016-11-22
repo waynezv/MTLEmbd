@@ -226,7 +226,7 @@ struct MTLBuilder {
 
       vector<Expression> conv1_out;
       for (int i = 0; i < CONV1_SIZE; ++i) {
-        conv1_out.push_back(conv1d_wide(input, parameter(cg, p_ifilts[i])));
+        conv1_out.push_back(conv1d_narrow(input, parameter(cg, p_ifilts[i])));
 
         Expression test = conv1_out[i]*input;
       }      
