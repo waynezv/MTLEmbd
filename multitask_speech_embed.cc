@@ -36,7 +36,6 @@ Dict education_d;
 Dict dialect_d;
 Dict word_d;
 
-
 string strip_string(string s, string to_strip) {
   size_t str_begin = s.find_first_not_of(to_strip);
   size_t str_end = s.find_last_not_of(to_strip);
@@ -81,6 +80,7 @@ vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info,
     string line;
     string substr;
     getline(in, w);
+    transform(w.begin(), w.end(), w.begin(), ::tolower);
     word = w;
     glove_sem_vector = word_to_gloVe[word];
     getline(in, speaker_str);
@@ -103,11 +103,26 @@ vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info,
     }
 
     // Padding
-    while (count < INPUT_SIZE) {
-      for (int i = 0; i < FBANK_DIM; ++i) {
-        instance_vector.push_back(0.0);
+    int to_pad = INPUT_SIZE - count;
+    if (to_pad >= 1) {
+      vector<float> padded_vector;
+      for (int i = 0; i < to_pad/2; ++i) {
+        for (int j = 0; j < FBANK_DIM; ++j) {
+          padded_vector.push_back(0.0);
+        }
+        count += 1;
       }
-      count += 1;
+
+      for (int i = 0; i < instance_vector.size(); ++i) {
+        padded_vector.push_back(instance_vector[i]);
+      }
+
+      while (count < INPUT_SIZE) {
+        for (int j = 0; j < FBANK_DIM; ++j) {
+          instance_vector.push_back(0.0);
+        }
+        count += 1;
+      }
     }
 
     input_vector = instance_vector;
@@ -170,6 +185,20 @@ unordered_map<string, Speaker> load_speakers(string speaker_filename) {
     }
   }
   return speakers_info;
+}
+
+void read_vocab(string vocab_filename) {
+  ifstream in(vocab_filename);
+  {
+    string word;
+    string line;
+    string w;
+    while(getline(in, line)) {
+      word = line.substr(0, line.find_first_of(','));
+      transform(w.begin(), w.end(), w.begin(), ::tolower);
+      word_d.convert(word);
+    }
+  }
 }
 
 unordered_map<string, vector<float>> load_glove_vectors(string glove_filename) {
@@ -280,7 +309,7 @@ int main(int argc, char** argv) {
   education_d.set_unk("UNK");
   dialect_d.set_unk("UNK");
 
-  //read_vocab("../")
+  read_vocab("../word_dict.txt");
   word_d.freeze();
   word_d.set_unk("UNK");
 
