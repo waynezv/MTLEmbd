@@ -13,10 +13,10 @@ using namespace std;
 using namespace dynet;
 using namespace dynet::expr;
 
-dict speaker_d;
-dict education_d;
-dict dialect_d;
-dict word_d;
+Dict speaker_d;
+Dict education_d;
+Dict dialect_d;
+Dict word_d;
 
 class Speaker {
   public:
