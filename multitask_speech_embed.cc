@@ -22,8 +22,9 @@ unsigned CONV1_FILTERS = 10;
 unsigned CONV1_SIZE = 10;
 unsigned CONV2_FILTERS = 10;
 unsigned CONV2_SIZE = 10;
-unsigned ROWS1 = 5;
+unsigned ROWS1 = 40;
 unsigned ROWS2 = 5;
+unsigned K_1 = 2;
 
 Dict speaker_d;
 Dict education_d;
@@ -76,7 +77,7 @@ vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info,
     string substr;
     getline(in, w);
     word = w;
-    glove_sem_vector = word_to_glove[word];
+    glove_sem_vector = word_to_gloVe[word];
     getline(in, speaker_str);
     speaker_id = speaker_str;
     speaker = speakers_info[speaker_id];
@@ -211,10 +212,10 @@ struct MTLBuilder {
     p_we2age(model->add_parameters({1, EMBEDDING_SIZE})),
     p_we2edu(model->add_parameters({education_d.size(), EMBEDDING_SIZE})),
     p_we2dia(model->add_parameters({dialect_d.size(), EMBEDDING_SIZE})) {
-      for (int i = 0; i < CONV1_SIZE; ++i) {
+      for (int i = 0; i < CONV1_FILTERS; ++i) {
         p_ifilts.push_back(model->add_parameters({ROWS1, CONV1_SIZE}));
       }
-      for (int i = 0; i < CONV2_SIZE; ++i) {
+      for (int i = 0; i < CONV2_FILTERS; ++i) {
         p_cfilts.push_back(model->add_parameters({ROWS2, CONV1_SIZE}));
       }
     }
@@ -229,12 +230,11 @@ struct MTLBuilder {
       vector<float> blah = as_vector(cg.incremental_forward(input));
 
       vector<Expression> conv1_out;
-      for (int i = 0; i < CONV1_SIZE; ++i) {
+      for (int i = 0; i < CONV1_FILTERS; ++i) {
         conv1_out.push_back(conv1d_narrow(input, parameter(cg, p_ifilts[i])));
-
-        Expression test = conv1_out[i]*input;
-      }      
-
+      }
+      Expression s = rectify(kmax_pooling(fold_rows(sum(conv1_out),2), K_1));
+      s*input;
     }
 };
 
