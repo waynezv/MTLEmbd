@@ -14,8 +14,8 @@ from theano.tensor.signal import pool
 
 rng = np.random.RandomState(93492019)
 caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
-
 DIM_TASKS = {"word": 100, "sem_similarity": 50, "gender": 2, "age": 1}
+
 
 class CallerInfo:
     def __init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
@@ -202,8 +202,8 @@ class MultitaskNetwork:
         :type batch_size:
         :para batch_size:
 
-        :type X: tuple or list of length 2
-        :para X: word feature of size (number of fbanks, fbank dim 40)
+        :type X: ftensor4
+        :para X: word feature of size (num_words, 1, number of fbanks, fbank dim 40)
 
         :type y: dict
         :para y: task specific labels ('taskname': labels)
@@ -213,7 +213,7 @@ class MultitaskNetwork:
 
         # Reshape matrix of size (batch size, frames per word x frame size)
         # TODO: truncate or pad frames
-        inp = X.reshape((self.batch_size, 1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
+        inp = X
 
         self.conv1 = ConvolutionBuilder(inp, constants.CONV1_FILTER_SIZE,
             constants.CONV1_BIAS_SIZE, constants.CONV1_STRIDE, 'conv1')
@@ -284,6 +284,8 @@ class MultitaskNetwork:
         output = self.task_specific_components[task].output
         return T.mean((output - y)**2)
 
+
+
 def test_network():
     # Model training code
     print('... training')
@@ -312,12 +314,21 @@ def test_network():
         train_input.append(instance.vec)
         train_label.append(label)
 
+    train_input_shared = T.shared(np.asarray(train_input,
+                                        dtype=T.config.floatX),
+                            borrow=True)
+    train_label_shared = T.cast(T.shared(np.asarray(train_label,
+                                    dtype=T.config.floatX),
+                            borrow=True),
+                        'int32')
+
     # Allocate symbolic variables for data
-    X = T.matrix('X')
-    y = T.ivector('y')
+    X = T.ftensor4('X')
+    y = T.ivector('y') #TODO: y type not agree
+    batch_index = T.lscalar()  # index to a [mini]batch
 
     #TODO: input size not equal
-    network_input = X.reshape((-1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
+    network_input = X.reshape((constants.BATCH_SIZE, 1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
 
     model = MultitaskNetwork(constants.BATCH_SIZE, network_input, multitask_flag=task_flag, task=single_task)
 
@@ -326,14 +337,16 @@ def test_network():
 
     train_net = T.function(
         [batch_index],
-        model.task_specific_loss,
+        # model.task_specific_loss,
+        model.negative_log_likelihood(y[single_task], single_task),
         updates = updates,
         givens = {
-            X: train_input[batch_index*model.batch_size : (batch_index+1)*model.batch_size],
-            y: train_label[batch_index*model.batch_size : (batch_index+1)*model.batch_size]
+            X: train_input_shared[batch_index*model.batch_size : (batch_index+1)*model.batch_size],
+            y: train_label_shared[batch_index*model.batch_size : (batch_index+1)*model.batch_size]
         }
     )
 
-    index = range(0, TASK_DIM, constants.BATCH_SIZE)
-    loss = train_net(index)
-    print(loss)
+    num_train_batches = train_input_shared.get_value(borrow=True).shape[0] // model.batch_size
+    for batch_ind in xrange(num_train_batches):
+        loss = train_net(batch_ind)
+        print(loss)
