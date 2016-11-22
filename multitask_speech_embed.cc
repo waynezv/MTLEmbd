@@ -29,7 +29,7 @@ class Instance {
     vector<float> glove_sem_vector;
     Speaker speaker;
 
-    void read_vec();
+    void read_vec(unordered_map<int, Speaker> speakers_info);
 };
 
 void Instance::read_vec(unordered_map<int, Speaker> speakers_info) {
