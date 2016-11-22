@@ -13,6 +13,10 @@ using namespace std;
 using namespace dynet;
 using namespace dynet::expr;
 
+bool train = true;
+string model_name = "model.model";
+
+
 class Speaker {
   public:
     int speaker_id;
@@ -110,6 +114,23 @@ unordered_map<int, Speaker> LoadSpeakers(string speaker_filename) {
   return speakers_info;
 }
 
+Struct MTLBuilder {
+  vector<Parameter> p_ifilts; //filters for the 1dconv over the input
+  vector<Parameter> p_cfilts; //filters 
+  Parameter p_c2we; //the output of the convolution to the word embedding
+  Parameter p_we2sr; //the word embedding to speech recognition
+  Parameter p_
+
+}
+
+
+
+
 int main(int argc, char** argv) {
   unordered_map<int, Speaker> speakers_info = LoadSpeakers("../caller_tab.csv");
+  dynet::initialize(argc, argv, 3640753077);
+
+
+
+
 }
