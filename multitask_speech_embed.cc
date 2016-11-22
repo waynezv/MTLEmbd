@@ -32,22 +32,22 @@ class Instance {
     string input_filename; // name of file containing data for the instance
     string word;
     vector<float> glove_sem_vector;
-    vector<float> input_vector;
     Speaker speaker;
 
-    void read_vec(unordered_map<int, Speaker> speakers_info);
+    vector<float> read_vec(unordered_map<int, Speaker> speakers_info);
 };
 
 enum Task { WORD, SEM_SIMILARITY, SPEAKER_ID, GENDER, AGE, EDUCATION, DIALECT };
 
-void Instance::read_vec(unordered_map<int, Speaker> speakers_info) {
-  string w;
-  string speaker_str;
-  int speaker_id;
-  string line;
-  string substr;
+vector<float> Instance::read_vec(unordered_map<int, Speaker> speakers_info) {
+  vector<float> input_vector;
   ifstream in(input_filename);
   {
+    string w;
+    string speaker_str;
+    int speaker_id;
+    string line;
+    string substr;
     getline(in, w);
     word = w;
     getline(in, speaker_str);
@@ -63,6 +63,7 @@ void Instance::read_vec(unordered_map<int, Speaker> speakers_info) {
     }
     input_vector = instance_vector;
   }
+  return input_vector;
 }
 
 string strip_string(string s, string to_strip) {
@@ -134,15 +135,32 @@ unordered_map<int, Speaker> load_speakers(string speaker_filename) {
   return speakers_info;
 }
 
+vector<Instance> read_instances(string instances_filename) {
+  vector<Instance> instances;
+  ifstream in(instances_filename);
+  {
+    cerr << "Reading instances data from " << instances_filename << "...\n";
+    string line;
+    while(getline(in, line)) {
+      Instance instance;
+      instance.input_filename = line;
+      instances.push_back(instance);
+    }
+  }
+  return instances;
+}
+
 int main(int argc, char** argv) {
   unordered_map<int, Speaker> speakers_info = load_speakers("../caller_tab.csv");
   speaker_d.freeze();
   education_d.freeze();
   dialect_d.freeze();
-  word_d.freeze();
 
   speaker_d.set_unk("UNK");
   education_d.set_unk("UNK");
   dialect_d.set_unk("UNK");
+
+  vector<Instance> instances = read_instances("word_feat.filelist");
+  word_d.freeze();
   word_d.set_unk("UNK");
 }
