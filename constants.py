@@ -26,3 +26,6 @@ SHARED_REPRESENTATION_SIZE = 1024
 BATCH_SIZE = 20
 IMPROVEMENT_THRESHOLD = 0.995
 VALIDATION_FREQUENCY = 10
+
+# Training miscellaneous
+DATA_PATH = ''.join('/mingback/715Proj/small_dataset_hard_align')

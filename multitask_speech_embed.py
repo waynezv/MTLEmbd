@@ -25,6 +25,7 @@ class CallerInfo:
         self.education = education
         self.dialect = dialect
 
+
 def load_caller_info():
     callers = [s.strip().split(',') for s in open('caller_tab.csv')]
     education_dict = {}
@@ -47,10 +48,12 @@ def load_caller_info():
             education = education_dict[education]
         else:
             education_dict[education] = len(education_dict) # ???
-        caller_info_dic[call_id] = CallerInfo(userid, gender, age, education, dialect)
+        caller_info_dic[call_id] = CallerInfo(call_id, gender, age, education, dialect)
+
     DIM_TASKS["dialect"] = max_dialect
     DIM_TASKS["education"] = len(education_dict)
     DIM_TASKS["speaker_id"] = len(caller_info_dic)
+
 
 class Instance:
     def __init__(self, filename, multitask_flag):
@@ -61,6 +64,7 @@ class Instance:
         self.vec = []               # Vector representation for network input
         self.multitask_flag = 0     # Flag for whether to train on multiple tasks
         self.task_labels = dict()   # Labels for each task for the instance
+        self.vec = self.read_vec()
 
     def read_vec():
         # TODO: Wenbo Read self.input_file, assign values to vec and task_labels
@@ -123,10 +127,12 @@ class ConvolutionBuilder:
         self.f = theano.function([inp], self.output)
         self.params = [self.W, self.b]
 
+
 class Maxpool:
     def __init__(self, inp, shape, stride):
         self.output = pool.pool_2d(input=inp, ds=shape, st=stride, ignore_border=True)
         self.f = theano.function([inp], self.output)
+
 
 class MeanSubtract:
     def __init__(self, inp, kernel_size):
@@ -146,13 +152,14 @@ class MeanSubtract:
         x = repeat(1./s, s).reshape((self.kernel_size, self.kernel_size))
         return x
 
+
 class ForwardLayer:
     def __init__(self, inp, filter_size, bias_size, name, activation=T.tanh):
         """
         Allocate a fully-connected feed forward layer with nonlinearity
 
-        :type input: theano.tensor.dmatrix
-        :param n_in: a symbolic tensor of shape (number of examples, input dimension)
+        :type inp: theano.tensor.dmatrix
+        :param inp: a symbolic tensor of shape (number of examples, input dimension)
 
         :type filter_size: tuple or list of length 2
         :param filter_size: (input dimension, output dimension)
@@ -177,22 +184,35 @@ class ForwardLayer:
         )
 
         if activation == theano.tensor.nnet.sigmoid:
-            W_values *= 4
+            W_values *= 4 # ???
 
         self.W = theano.shared(value=W_values, name=name+'_W', borrow=True)
 
         b_values = numpy.zeros(bias_size, dtype=theano.config.floatX)
         self.b = theano.shared(value=b_values, name=name+'_b', borrow=True)
 
-        self.output = activation(T.dot(input, self.W) + self.b)
+        self.output = activation(T.dot(inp, self.W) + self.b)
         self.f = theano.function([inp], self.output)
         self.params = [self.W, self.b]
 
+
 class MultitaskNetwork:
-    def __init__(self, batch_size, X):
-        self.batch_size = batch_size 
+    def __init__(self, batch_size, X, y, **kwargs):
+        """
+        :type batch_size:
+        :para batch_size:
+
+        :type X: tuple or list of length 2
+        :para X: word feature of size (number of fbanks, fbank dim 40)
+
+        :type y: dict
+        :para y: task specific labels ('taskname': labels)
+        """
+        self.multitask_flag = kwargs['multitask_flag']
+        self.batch_size = batch_size
 
         # Reshape matrix of size (batch size, frames per word x frame size)
+        # TODO: truncate or pad frames
         inp = X.reshape((self.batch_size, 1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
 
         self.conv1 = ConvolutionBuilder(inp, constants.CONV1_FILTER_SIZE,
@@ -206,11 +226,37 @@ class MultitaskNetwork:
 
         self.params = self.conv1.params + self.conv2.params + self.forward.params
 
-        self.task_specific_components = dict()
-        for task in constants.TASKS:
-            self.task_specific_components[task] = ForwardLayer(forward.output,
-                (constants.SHARED_REPRESENTATION_SIZE, DIM_TASKS[task]), DIM_TASKS[task], task)
-            self.params = self.params + self.task_specific_components[task].params
+        if  self.multitask_flag == 0:
+            task = kwargs['task']
+            self.task_specific_components = dict()
+            self.task_specific_loss = dict()
+            self.task_specific_grad = dict()
+            self.task_specific_components[task] = ForwardLayer(self.forward.output,
+                                                               (constants.SHARED_REPRESENTATION_SIZE, DIM_TASKS[task]), DIM_TASKS[task], task)
+            self.params += self.task_specific_components[task].params
+
+            # Loss and gradient
+            loss = self.negative_log_likelihood(y[task], task)
+            grad = T.grad(loss, self.params)
+
+            self.task_specific_loss[task] = loss
+            self.task_specific_grad[task] = grad
+
+        else:
+            self.task_specific_components = dict()
+            self.task_specific_loss = dict()
+            self.task_specific_grad = dict()
+            for task in constants.TASKS:
+                self.task_specific_components[task] = ForwardLayer(self.forward.output,
+                    (constants.SHARED_REPRESENTATION_SIZE, DIM_TASKS[task]), DIM_TASKS[task], task)
+                self.params += self.task_specific_components[task].params
+
+                # Loss and gradient
+                loss = self.negative_log_likelihood(y[task], task)
+                grad = T.grad(loss, self.params)
+
+                self.task_specific_loss[task] = loss
+                self.task_specific_grad[task] = grad
 
     def negative_log_likelihood(self, y, task):
         """
@@ -242,10 +288,52 @@ def test_network():
     # Model training code
     print('... training')
 
+    # Prepare data
+    task_flag = 0
+    single_task = 'word'
+    load_caller_info()
+    TASK_DIM = DIM_TASKS[task]
+    train_input = []
+    train_label = []
+
+    word_feat_filelist = [s.strip() for s in open('word_feat.filelist')]
+    for i in xrange(TASK_DIM):
+        fbank_file = os.path.join(constants.data_path, word_feat_filelist[i])
+        instance = Instance(fbank_file, task_flag)
+        word = instance.task_labels['word']
+        spk_id = instance.task_labels['speaker_id']
+        gender = caller_info_dic[spk_id].gender
+        age = caller_info_dic[spk_id].age
+        education = caller_info_dic[spk_id].education
+        dialect = caller_info_dic[spk_id].dialect
+        label = {'word':word, 'speaker_id':spk_id, 'gender':gender,
+                    'age':age, 'education':education, 'dialect':dialect}
+
+        train_input.append(instance.vec)
+        train_label.append(label)
+
     # Allocate symbolic variables for data
     X = T.matrix('X')
     y = T.ivector('y')
 
-    network_input = X.reshape((constants.BATCH_SIZE, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
- 
-    model = MultitaskNetwork(constants.BATCH_SIZE, network_input)
+    #TODO: input size not equal
+    network_input = X.reshape((-1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
+
+    model = MultitaskNetwork(constants.BATCH_SIZE, network_input, multitask_flag=task_flag, task=single_task)
+
+    updates = [(param_i, param_i - learning_rate * grad_i)
+               for param_i, grad_i in zip(model.params, model.grad)]
+
+    train_net = T.function(
+        [batch_index],
+        model.task_specific_loss,
+        updates = updates,
+        givens = {
+            X: train_input[batch_index*model.batch_size : (batch_index+1)*model.batch_size],
+            y: train_label[batch_index*model.batch_size : (batch_index+1)*model.batch_size]
+        }
+    )
+
+    index = range(0, TASK_DIM, constants.BATCH_SIZE)
+    loss = train_net(index)
+    print(loss)
