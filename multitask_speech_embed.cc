@@ -58,12 +58,14 @@ class Instance {
     vector<float> glove_sem_vector;
     Speaker speaker;
 
-    vector<float> read_vec(unordered_map<string, Speaker> speakers_info);
+    vector<float> read_vec(unordered_map<string, Speaker> speakers_info,
+        unordered_map<string, vector<float>> word_to_gloVe);
 };
 
 enum Task { WORD=0, SEM_SIMILARITY=1, SPEAKER_ID=2, GENDER=3, AGE=4, EDUCATION=5, DIALECT=6 };
 
-vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info) {
+vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info,
+    unordered_map<string, vector<float>> word_to_gloVe) {
   vector<float> input_vector;
   ifstream in(input_filename);
   {
@@ -74,6 +76,7 @@ vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info) {
     string substr;
     getline(in, w);
     word = w;
+    glove_sem_vector = word_to_glove[word];
     getline(in, speaker_str);
     speaker_id = speaker_str;
     speaker = speakers_info[speaker_id];
@@ -217,8 +220,9 @@ struct MTLBuilder {
     }
 
     Expression loss_against_task(ComputationGraph& cg, Task task, Instance instance,
-        unordered_map<string, Speaker> speakers_info) {
-      vector<float> fb = instance.read_vec(speakers_info);
+        unordered_map<string, Speaker> speakers_info,
+        unordered_map<string, vector<float>> word_to_gloVe) {
+      vector<float> fb = instance.read_vec(speakers_info, word_to_gloVe);
       unsigned fb_size = fb.size();
       Expression raw_input = input(cg, {fb_size/40, 40}, fb);
       Expression input = transpose(raw_input);
@@ -250,6 +254,8 @@ int main(int argc, char** argv) {
   word_d.freeze();
   word_d.set_unk("UNK");
 
+  unordered_map<string, vector<float>> word_to_gloVe =
+      load_glove_vectors("glove.6B.50d.txt");
   vector<Instance> instances = read_instances("../word_feat.filelist");
   vector<int> order;
 
@@ -273,11 +279,9 @@ int main(int argc, char** argv) {
         ComputationGraph cg;  
         Instance instance = instances[order[i]];
         Task task = static_cast<Task>(rand()%7);
-        Expression error = mtl.loss_against_task(cg, task, instance, speakers_info);
-
+        Expression error = mtl.loss_against_task(cg, task, instance, speakers_info,
+            word_to_gloVe);
       }
-
     }
-
   }
 }
