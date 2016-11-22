@@ -24,6 +24,12 @@ int CONV2_FILTERS = 10;
 int CONV2_SIZE = 10;
 int ROWS1 = 5;
 int ROWS2 = 5
+
+Dict speaker_d;
+Dict education_d;
+Dict dialect_d;
+Dict word_d;
+
 class Speaker {
   public:
     int speaker_id;
@@ -43,6 +49,8 @@ class Instance {
 
     void read_vec(unordered_map<int, Speaker> speakers_info);
 };
+
+enum Task { WORD, SEM_SIMILARITY, SPEAKER_ID, GENDER, AGE, EDUCATION, DIALECT };
 
 void Instance::read_vec(unordered_map<int, Speaker> speakers_info) {
   string w;
@@ -79,7 +87,7 @@ string strip_string(string s, string to_strip) {
   return s.substr(str_begin, str_range);
 }
 
-unordered_map<int, Speaker> LoadSpeakers(string speaker_filename) {
+unordered_map<int, Speaker> load_speakers(string speaker_filename) {
   unordered_map<int, Speaker> speakers_info;
   ifstream in(speaker_filename);
   {
@@ -127,6 +135,11 @@ unordered_map<int, Speaker> LoadSpeakers(string speaker_filename) {
       si.age = age;
       si.dialect = dialect;
       si.education = education;
+
+      speaker_d.convert(speaker_id);
+      dialect_d. convert(dialect);
+      education_d.convert(education);
+
       speakers_info[speaker_id] = si;
     }
   }
@@ -178,4 +191,14 @@ int main(int argc, char** argv) {
 
 
 
+  unordered_map<int, Speaker> speakers_info = load_speakers("../caller_tab.csv");
+  speaker_d.freeze();
+  education_d.freeze();
+  dialect_d.freeze();
+  word_d.freeze();
+
+  speaker_d.set_unk("UNK");
+  education_d.set_unk("UNK");
+  dialect_d.set_unk("UNK");
+  word_d.set_unk("UNK");
 }
