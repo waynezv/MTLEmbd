@@ -32,7 +32,7 @@ Dict word_d;
 
 class Speaker {
   public:
-    int speaker_id;
+    string speaker_id;
     bool gender; // false = male, true = female
     int age;
     string education;
@@ -46,24 +46,24 @@ class Instance {
     vector<float> glove_sem_vector;
     Speaker speaker;
 
-    vector<float> read_vec(unordered_map<int, Speaker> speakers_info);
+    vector<float> read_vec(unordered_map<string, Speaker> speakers_info);
 };
 
 enum Task { WORD, SEM_SIMILARITY, SPEAKER_ID, GENDER, AGE, EDUCATION, DIALECT };
 
-vector<float> Instance::read_vec(unordered_map<int, Speaker> speakers_info) {
+vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info) {
   vector<float> input_vector;
   ifstream in(input_filename);
   {
     string w;
     string speaker_str;
-    int speaker_id;
+    string speaker_id;
     string line;
     string substr;
     getline(in, w);
     word = w;
     getline(in, speaker_str);
-    speaker_id = stoi(speaker_str);
+    speaker_id = speaker_str;
     speaker = speakers_info[speaker_id];
     vector<float> instance_vector; 
     while(getline(in, line)) {
@@ -88,14 +88,14 @@ string strip_string(string s, string to_strip) {
   return s.substr(str_begin, str_range);
 }
 
-unordered_map<int, Speaker> load_speakers(string speaker_filename) {
-  unordered_map<int, Speaker> speakers_info;
+unordered_map<string, Speaker> load_speakers(string speaker_filename) {
+  unordered_map<string, Speaker> speakers_info;
   ifstream in(speaker_filename);
   {
     cerr << "Reading speaker data from " << speaker_filename << " ...\n";
     string line;
     string substr;
-    int speaker_id;
+    string speaker_id;
     bool gender;
     int age;
     string dialect;
@@ -109,8 +109,7 @@ unordered_map<int, Speaker> load_speakers(string speaker_filename) {
         vect.push_back(substr);
       }
 
-      string speaker_str = strip_string(vect[0], "\" ");
-      speaker_id = stoi(speaker_str);
+      speaker_id = strip_string(vect[0], "\" ");
 
       string gender_str = strip_string(vect[3], "\" ");
       if (gender_str.compare("MALE") == 0) {
@@ -138,13 +137,39 @@ unordered_map<int, Speaker> load_speakers(string speaker_filename) {
       si.education = education;
 
       speaker_d.convert(speaker_id);
-      dialect_d. convert(dialect);
+      dialect_d.convert(dialect);
       education_d.convert(education);
 
       speakers_info[speaker_id] = si;
     }
   }
   return speakers_info;
+}
+
+unordered_map<string, vector<float>> load_glove_vectors(string glove_filename) {
+  unordered_map<string, vector<float>> word_to_gloVe;
+  ifstream in(glove_filename);
+  {
+    cerr << "Reading glove vectors from " << glove_filename << "...\n";
+    string line;
+    string word;
+    while(getline(in, line)) {
+      istringstream iss(line);
+      getline(iss, word, ' ');
+      if (word_d.convert(word_d.convert(word)).compare("UNK") == 0) {
+        continue;
+      }
+
+      vector<float> gloVe;
+      string substr;
+      while(iss.good()) {
+        getline(iss, substr, ' '); 
+        gloVe.push_back(stof(substr));
+      }
+      word_to_gloVe[word] = gloVe;
+    }
+  }
+  return word_to_gloVe;
 }
 
 vector<Instance> read_instances(string instances_filename) {
@@ -200,7 +225,7 @@ struct MTLBuilder {
 int main(int argc, char** argv) {
   dynet::initialize(argc, argv, 3640753077);
 
-  unordered_map<int, Speaker> speakers_info = load_speakers("../caller_tab.csv");
+  unordered_map<string, Speaker> speakers_info = load_speakers("../caller_tab.csv");
   speaker_d.freeze();
   education_d.freeze();
   dialect_d.freeze();
@@ -209,7 +234,9 @@ int main(int argc, char** argv) {
   education_d.set_unk("UNK");
   dialect_d.set_unk("UNK");
 
-  vector<Instance> instances = read_instances("word_feat.filelist");
+  //read_vocab("../")
   word_d.freeze();
   word_d.set_unk("UNK");
+
+  vector<Instance> instances = read_instances("../word_feat.filelist");
 }
