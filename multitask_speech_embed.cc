@@ -355,31 +355,93 @@ int main(int argc, char** argv) {
   unordered_map<string, vector<float>> word_to_gloVe =
       load_glove_vectors("glove.6B.50d.txt");
   vector<Instance> instances = read_instances("../word_feat.filelist");
-  vector<int> order;
 
   Model model;
   MTLBuilder mtl(&model);
+  SimpleSGDTrainer sgd(&model);
+
+
+  vector<int> torder;
 
   for (int i = 0; i < instances.size(); ++i) {
-    order.push_back(i);
+    torder.push_back(i);
   }
 
+  random_shuffle(torder.begin(), torder.end());
+
+  int dev_size = 2;
+  vector<int> dev(&torder[torder.size()-dev_size], &torder[torder.size()]);
+  vector<int> order(&torder[0], &torder[torder.size()-dev_size]);
   int iter = -1;
-  int dev_every_n = 300;
+  int dev_update_every_n = 600;
+  int train_update_every_n = 300;
+  float total_loss = 0;
+  float total_loss_since_last_update = 0;
+  int i = -1;
+  float best_loss = 1000000;
 
   if (TO_TRAIN) {
     ++iter;
+    ++i;
     while(true) {
-      cerr << "**SHUFFLE\n";
-      random_shuffle(order.begin(), order.end());
-      
-      for (int i = 0; i < instances.size(); ++i) {
-        ComputationGraph cg;  
-        Instance instance = instances[order[i]];
-        Task task = static_cast<Task>(rand()%6 + 1);
-        Expression error = mtl.loss_against_task(cg, task, instance, speakers_info,
-            word_to_gloVe);
+      if (i == order.size()) {
+        i = 0;
+        cerr << "**SHUFFLE\n";
+        random_shuffle(order.begin(), order.end());
       }
+      ComputationGraph cg;  
+      Instance instance = instances[order[i]];
+      Task task = static_cast<Task>(rand()%7);
+      Expression loss = mtl.loss_against_task(cg, task, instance, speakers_info,
+          word_to_gloVe);
+
+      float lp = as_scalar(cg.incremental_forward(loss));
+      total_loss += lp;
+      total_loss_since_last_update += lp;
+      cg.backward(loss);
+      sgd.update(0.001);
+
+      if (i%train_update_every_n == train_update_every_n-1) {
+        cerr << "through " << i << "instances out of "  << instances.size() << " total, avg loss since last update: " << total_loss_since_last_update/train_update_every_n << endl;
+        total_loss_since_last_update = 0;
+      }
+      if (i% dev_update_every_n == dev_update_every_n-1) {
+        //test each task on each instance in the dev set
+        float dev_loss = 0;
+        vector<float> task_losses(7,0);
+
+
+        float num_tests = 0;
+        for (int j = 0; j < dev.size(); ++j) {
+          for (int k = 0; k < 7; ++k) {
+            ComputationGraph cg;  
+            Instance instance = instances[dev[j]];
+            Task task = static_cast<Task>(k);
+            Expression loss = mtl.loss_against_task(cg, task, instance, speakers_info,
+                word_to_gloVe);
+            float lp = as_scalar(cg.incremental_forward(loss));
+            dev_loss += lp;
+            task_losses[k] += lp;
+            num_tests += 1;
+          }
+
+        }
+        cerr << "dev update: avg loss per instance : " << dev_loss/num_tests << endl;
+        for (int k = 0; k < 7; ++k) {
+          cerr << "dev loss on task " << k << ": " << task_losses[k]/dev_size << endl;
+        }
+        //model saving
+        if (dev_loss < best_loss) {
+          cerr << "saving model" << endl;
+          best_loss = dev_loss;
+          ofstream out(model_name);
+          boost::archive::text_oarchive oa(out);
+          oa << model;
+
+        }
+
+      }
+     
     }
   }
 }
