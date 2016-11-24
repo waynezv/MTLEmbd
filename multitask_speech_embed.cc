@@ -62,30 +62,45 @@ class Instance {
     string word;
     vector<float> glove_sem_vector;
     Speaker speaker;
+    bool filled;
 
-    vector<float> read_vec(unordered_map<string, Speaker> speakers_info,
+    void fill_instance(unordered_map<string, Speaker> speakers_info,
         unordered_map<string, vector<float>> word_to_gloVe);
+
+    vector<float> read_vec();
 };
 
 enum Task { WORD=0, SEM_SIMILARITY=1, SPEAKER_ID=2, GENDER=3, AGE=4, EDUCATION=5, DIALECT=6 };
 
-vector<float> Instance::read_vec(unordered_map<string, Speaker> speakers_info,
+void Instance::fill_instance(unordered_map<string, Speaker> speakers_info,
     unordered_map<string, vector<float>> word_to_gloVe) {
-  vector<float> input_vector;
   ifstream in(input_filename);
   {
     string w;
-    string speaker_str;
-    string speaker_id;
     string line;
-    string substr;
     getline(in, w);
     transform(w.begin(), w.end(), w.begin(), ::tolower);
     word = w;
     glove_sem_vector = word_to_gloVe[word];
+
+    string speaker_str;
+    string speaker_id;
     getline(in, speaker_str);
     speaker_id = speaker_str;
     speaker = speakers_info[speaker_id];
+
+    filled = true;
+  }
+}
+
+vector<float> Instance::read_vec() {
+  vector<float> input_vector;
+  ifstream in(input_filename);
+  {
+    string w;
+    string line;
+    string substr;
+    getline(in, w);
     vector<float> instance_vector;
     int count = 0;
     while(getline(in, line)) {
@@ -194,6 +209,7 @@ unordered_map<string, Speaker> load_speakers(string speaker_filename) {
 void read_vocab(string vocab_filename) {
   ifstream in(vocab_filename);
   {
+    cerr << "Reading vocab from " << vocab_filename << "...\n";
     string word;
     string line;
     string w;
@@ -230,7 +246,9 @@ unordered_map<string, vector<float>> load_glove_vectors(string glove_filename) {
   return word_to_gloVe;
 }
 
-vector<Instance> read_instances(string instances_filename) {
+vector<Instance> read_instances(string instances_filename,
+    unordered_map<string, Speaker> speakers_info,
+    unordered_map<string, vector<float>> word_to_gloVe) {
   vector<Instance> instances;
   ifstream in(instances_filename);
   {
@@ -239,6 +257,7 @@ vector<Instance> read_instances(string instances_filename) {
     while(getline(in, line)) {
       Instance instance;
       instance.input_filename = ("../data/"+line);
+      instance.filled = false;
       instances.push_back(instance);
     }
   }
@@ -281,10 +300,8 @@ struct MTLBuilder {
     }
 
 
-    Expression loss_against_task(ComputationGraph& cg, Task task, Instance instance,
-        unordered_map<string, Speaker> speakers_info,
-        unordered_map<string, vector<float>> word_to_gloVe) {
-      vector<float> fb = instance.read_vec(speakers_info, word_to_gloVe);
+    Expression loss_against_task(ComputationGraph& cg, Task task, Instance instance) {
+      vector<float> fb = instance.read_vec();
       unsigned fb_size = fb.size();
       Expression raw_input = input(cg, {fb_size/40, 40}, fb);
       Expression inp = transpose(raw_input);
@@ -353,8 +370,9 @@ int main(int argc, char** argv) {
   word_d.set_unk("UNK");
 
   unordered_map<string, vector<float>> word_to_gloVe =
-      load_glove_vectors("glove.6B.50d.txt");
-  vector<Instance> instances = read_instances("../word_feat.filelist");
+      load_glove_vectors("../glove.6B.50d.txt");
+  vector<Instance> instances = read_instances("../word_feat.filelist",
+      speakers_info, word_to_gloVe);
 
   Model model;
   MTLBuilder mtl(&model);
@@ -380,6 +398,8 @@ int main(int argc, char** argv) {
   int i = -1;
   float best_loss = 1000000;
 
+
+  cout << "Training...\n";
   if (TO_TRAIN) {
     ++iter;
     ++i;
@@ -391,18 +411,22 @@ int main(int argc, char** argv) {
       }
       ComputationGraph cg;  
       Instance instance = instances[order[i]];
+      if (!instance.filled) {
+        instance.fill_instance(speakers_info, word_to_gloVe);
+      }
       Task task = static_cast<Task>(rand()%7);
-      Expression loss = mtl.loss_against_task(cg, task, instance, speakers_info,
-          word_to_gloVe);
+      Expression loss = mtl.loss_against_task(cg, task, instance);
 
       float lp = as_scalar(cg.incremental_forward(loss));
       total_loss += lp;
       total_loss_since_last_update += lp;
+      cout << "Instance trained" << endl;
       cg.backward(loss);
       sgd.update(0.001);
 
       if (i%train_update_every_n == train_update_every_n-1) {
-        cerr << "through " << i << "instances out of "  << instances.size() << " total, avg loss since last update: " << total_loss_since_last_update/train_update_every_n << endl;
+        cerr << "through " << i << "instances out of "  << instances.size() <<
+            " total, avg loss since last update: " << total_loss_since_last_update/train_update_every_n << endl;
         total_loss_since_last_update = 0;
       }
       if (i% dev_update_every_n == dev_update_every_n-1) {
@@ -416,9 +440,11 @@ int main(int argc, char** argv) {
           for (int k = 0; k < 7; ++k) {
             ComputationGraph cg;  
             Instance instance = instances[dev[j]];
+            if (!instance.filled) {
+                instance.fill_instance(speakers_info, word_to_gloVe);
+            }
             Task task = static_cast<Task>(k);
-            Expression loss = mtl.loss_against_task(cg, task, instance, speakers_info,
-                word_to_gloVe);
+            Expression loss = mtl.loss_against_task(cg, task, instance);
             float lp = as_scalar(cg.incremental_forward(loss));
             dev_loss += lp;
             task_losses[k] += lp;
@@ -437,11 +463,8 @@ int main(int argc, char** argv) {
           ofstream out(model_name);
           boost::archive::text_oarchive oa(out);
           oa << model;
-
         }
-
       }
-     
     }
   }
 }
