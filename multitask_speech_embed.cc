@@ -409,9 +409,9 @@ int main(int argc, char** argv) {
 
   cout << "Training...\n";
   if (TO_TRAIN) {
-    ++iter;
-    ++i;
     while(true) {
+      ++iter;
+      ++i;
       if (i == order.size()) {
         i = 0;
         cerr << "**SHUFFLE\n";
