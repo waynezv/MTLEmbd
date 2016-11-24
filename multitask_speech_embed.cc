@@ -91,6 +91,7 @@ void Instance::fill_instance(unordered_map<string, Speaker> speakers_info,
 
     filled = true;
   }
+  in.close();
 }
 
 vector<float> Instance::read_vec() {
@@ -100,7 +101,9 @@ vector<float> Instance::read_vec() {
     string w;
     string line;
     string substr;
+    string speaker_str;
     getline(in, w);
+    getline(in, speaker_str);
     vector<float> instance_vector;
     int count = 0;
     while(getline(in, line)) {
@@ -146,6 +149,7 @@ vector<float> Instance::read_vec() {
 
     input_vector = padded_vector;
   }
+  in.close();
   return input_vector;
 }
 
@@ -203,6 +207,7 @@ unordered_map<string, Speaker> load_speakers(string speaker_filename) {
       speakers_info[speaker_id] = si;
     }
   }
+  in.close();
   return speakers_info;
 }
 
@@ -219,6 +224,7 @@ void read_vocab(string vocab_filename) {
       word_d.convert(word);
     }
   }
+  in.close();
 }
 
 unordered_map<string, vector<float>> load_glove_vectors(string glove_filename) {
@@ -243,6 +249,7 @@ unordered_map<string, vector<float>> load_glove_vectors(string glove_filename) {
       word_to_gloVe[word] = gloVe;
     }
   }
+  in.close();
   return word_to_gloVe;
 }
 
@@ -261,6 +268,7 @@ vector<Instance> read_instances(string instances_filename,
       instances.push_back(instance);
     }
   }
+  in.close();
   return instances;
 }
 
@@ -420,7 +428,7 @@ int main(int argc, char** argv) {
       float lp = as_scalar(cg.incremental_forward(loss));
       total_loss += lp;
       total_loss_since_last_update += lp;
-      cout << "Instance trained" << endl;
+      cout << instance.word << endl;
       cg.backward(loss);
       sgd.update(0.001);
 
