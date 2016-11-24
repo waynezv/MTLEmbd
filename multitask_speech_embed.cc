@@ -442,12 +442,12 @@ int main(int argc, char** argv) {
       float lp = as_scalar(cg.incremental_forward(loss));
       total_loss += lp;
       total_loss_since_last_update += lp;
-      cout << instance.word << endl;
+      cout << instance.word << " " << task << endl;
       cg.backward(loss);
       sgd.update(0.001);
 
       if (i%train_update_every_n == train_update_every_n-1) {
-        cerr << "through " << i << "instances out of "  << instances.size() <<
+        cerr << "through " << i << " instances out of "  << instances.size() <<
             " total, avg loss since last update: " << total_loss_since_last_update/train_update_every_n << endl;
         total_loss_since_last_update = 0;
       }
