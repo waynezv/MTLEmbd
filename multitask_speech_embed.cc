@@ -418,6 +418,51 @@ int main(int argc, char** argv) {
         cerr << "**SHUFFLE\n";
         random_shuffle(order.begin(), order.end());
       }
+
+      // dev update
+      if (i% dev_update_every_n == dev_update_every_n-1) {
+        //test each task on each instance in the dev set
+        float dev_loss = 0;
+        vector<float> task_losses(7,0);
+
+        float num_tests = 0;
+        for (int j = 0; j < dev.size(); ++j) {
+          for (int k = 0; k < 7; ++k) {
+            ComputationGraph cg;  
+            Instance instance = instances[dev[j]];
+            if (!instance.filled) {
+              instance.fill_instance(speakers_info, word_to_gloVe);
+            }
+
+            if (k == SEM_SIMILARITY && instance.gloVe_sem_vector.size() != GLOVE_DIM) {
+              continue;
+            }
+
+            Task task = static_cast<Task>(k);
+            Expression loss = mtl.loss_against_task(cg, task, instance);
+            float lp = as_scalar(cg.incremental_forward(loss));
+            dev_loss += lp;
+            task_losses[k] += lp;
+            num_tests += 1;
+          }
+
+        }
+        cerr << "dev update: avg loss per instance : " << dev_loss/num_tests << endl;
+        for (int k = 0; k < 7; ++k) {
+          cerr << "dev loss on task " << k << ": " << task_losses[k]/dev_size << endl;
+        }
+
+        //model saving
+        if (dev_loss < best_loss) {
+          cerr << "saving model" << endl;
+          best_loss = dev_loss;
+          ofstream out(model_name);
+          boost::archive::text_oarchive oa(out);
+          oa << model;
+        }
+      }
+
+      // Training
       ComputationGraph cg;  
       Instance instance = instances[order[i]];
       if (!instance.filled) {
@@ -450,47 +495,6 @@ int main(int argc, char** argv) {
         cerr << "through " << i << " instances out of "  << instances.size() <<
             " total, avg loss since last update: " << total_loss_since_last_update/train_update_every_n << endl;
         total_loss_since_last_update = 0;
-      }
-      if (i% dev_update_every_n == dev_update_every_n-1) {
-        //test each task on each instance in the dev set
-        float dev_loss = 0;
-        vector<float> task_losses(7,0);
-
-
-        float num_tests = 0;
-        for (int j = 0; j < dev.size(); ++j) {
-          for (int k = 0; k < 7; ++k) {
-            ComputationGraph cg;  
-            Instance instance = instances[dev[j]];
-            if (!instance.filled) {
-              instance.fill_instance(speakers_info, word_to_gloVe);
-            }
-
-            if (k == SEM_SIMILARITY && instance.gloVe_sem_vector.size() != GLOVE_DIM) {
-              continue;
-            }
-
-            Task task = static_cast<Task>(k);
-            Expression loss = mtl.loss_against_task(cg, task, instance);
-            float lp = as_scalar(cg.incremental_forward(loss));
-            dev_loss += lp;
-            task_losses[k] += lp;
-            num_tests += 1;
-          }
-
-        }
-        cerr << "dev update: avg loss per instance : " << dev_loss/num_tests << endl;
-        for (int k = 0; k < 7; ++k) {
-          cerr << "dev loss on task " << k << ": " << task_losses[k]/dev_size << endl;
-        }
-        //model saving
-        if (dev_loss < best_loss) {
-          cerr << "saving model" << endl;
-          best_loss = dev_loss;
-          ofstream out(model_name);
-          boost::archive::text_oarchive oa(out);
-          oa << model;
-        }
       }
     }
   }
