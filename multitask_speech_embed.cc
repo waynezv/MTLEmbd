@@ -25,6 +25,7 @@ unsigned CONV2_SIZE = 5;
 unsigned ROWS1 = 40;
 unsigned ROWS2 = 20;
 unsigned K_1 = 36;
+float WORD_TASK_PROB = .8;
 //unsigned K_2 = 36;
 
 
@@ -60,7 +61,7 @@ class Instance {
   public:
     string input_filename; // name of file containing data for the instance
     string word;
-    vector<float> glove_sem_vector;
+    vector<float> gloVe_sem_vector;
     Speaker speaker;
     bool filled;
 
@@ -81,7 +82,7 @@ void Instance::fill_instance(unordered_map<string, Speaker> speakers_info,
     getline(in, w);
     transform(w.begin(), w.end(), w.begin(), ::tolower);
     word = w;
-    glove_sem_vector = word_to_gloVe[word];
+    gloVe_sem_vector = word_to_gloVe[word];
 
     string speaker_str;
     string speaker_id;
@@ -227,11 +228,11 @@ void read_vocab(string vocab_filename) {
   in.close();
 }
 
-unordered_map<string, vector<float>> load_glove_vectors(string glove_filename) {
+unordered_map<string, vector<float>> load_gloVe_vectors(string gloVe_filename) {
   unordered_map<string, vector<float>> word_to_gloVe;
-  ifstream in(glove_filename);
+  ifstream in(gloVe_filename);
   {
-    cerr << "Reading glove vectors from " << glove_filename << "...\n";
+    cerr << "Reading gloVe vectors from " << gloVe_filename << "...\n";
     string line;
     string word;
     while(getline(in, line)) {
@@ -335,7 +336,7 @@ struct MTLBuilder {
       Expression loss;
       if (task == SEM_SIMILARITY) {
         Expression output =parameter(cg, p_we2ss)*embedding;
-        loss = squared_distance(output, input(cg, {GLOVE_DIM}, instance.glove_sem_vector));
+        loss = squared_distance(output, input(cg, {GLOVE_DIM}, instance.gloVe_sem_vector));
       }
       else if (task == AGE) {
         Expression output = parameter(cg, p_we2age)*embedding;
@@ -378,7 +379,7 @@ int main(int argc, char** argv) {
   word_d.set_unk("UNK");
 
   unordered_map<string, vector<float>> word_to_gloVe =
-      load_glove_vectors("../glove.6B.50d.txt");
+      load_gloVe_vectors("../gloVe.6B.50d.txt");
   vector<Instance> instances = read_instances("../word_feat.filelist",
       speakers_info, word_to_gloVe);
 
@@ -422,7 +423,20 @@ int main(int argc, char** argv) {
       if (!instance.filled) {
         instance.fill_instance(speakers_info, word_to_gloVe);
       }
-      Task task = static_cast<Task>(rand()%7);
+
+      float r = static_cast<float>(rand())/static_cast<float>(RAND_MAX);
+      Task task;
+      if (r < WORD_TASK_PROB) {
+        task = WORD;
+      }
+      else {
+        if (instance.gloVe_sem_vector.size() != GLOVE_DIM) {
+          task = static_cast<Task>(rand()%5+2);
+        }
+        else {
+          task = static_cast<Task>(rand()%6+1);
+        }
+      }
       Expression loss = mtl.loss_against_task(cg, task, instance);
 
       float lp = as_scalar(cg.incremental_forward(loss));
@@ -449,8 +463,13 @@ int main(int argc, char** argv) {
             ComputationGraph cg;  
             Instance instance = instances[dev[j]];
             if (!instance.filled) {
-                instance.fill_instance(speakers_info, word_to_gloVe);
+              instance.fill_instance(speakers_info, word_to_gloVe);
             }
+
+            if (k == SEM_SIMILARITY && instance.gloVe_sem_vector.size() != GLOVE_DIM) {
+              continue;
+            }
+
             Task task = static_cast<Task>(k);
             Expression loss = mtl.loss_against_task(cg, task, instance);
             float lp = as_scalar(cg.incremental_forward(loss));
