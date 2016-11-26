@@ -130,10 +130,17 @@ class ConvolutionBuilder:
             stride = kwargs['stride']
         else:
             stride = (1,1)
+        #self.out = conv2d(input=inp, filters=self.W, subsample=stride, border_mode='full')
         self.out = conv2d(input=inp, filters=self.W, subsample=stride)
         self.output = T.nnet.relu(self.out + self.b.dimshuffle('x', 0, 'x', 'x'))
         self.f = theano.function([inp], self.output)
         self.params = [self.W, self.b]
+
+        tmp = np.random.rand(20,1,200,40)
+        t_inp = theano.tensor.dtensor4()
+        out = conv2d(input=t_inp, filters=self.W, subsample=stride)
+        #print(t_inp.shape.eval({t_inp: tmp}))
+        print('conv:', theano.function([t_inp], out.shape)(tmp))
 
 
 class Maxpool:
@@ -141,6 +148,11 @@ class Maxpool:
         self.output = pool.pool_2d(input=inp, ds=shape, st=stride, ignore_border=True)
         self.f = theano.function([inp], self.output)
 
+        tmp = np.random.rand(20,1,25,33)
+        t_inp = theano.tensor.dtensor4()
+        out = pool.pool_2d(input=t_inp, ds=shape, st=stride, ignore_border=True)
+        print(t_inp.shape.eval({t_inp: tmp}))
+        print('max:', theano.function([t_inp], out.shape)(tmp))
 
 class MeanSubtract:
     def __init__(self, inp, kernel_size):
@@ -214,7 +226,7 @@ class ForwardLayer:
         b_values = np.zeros(bias_size, dtype=theano.config.floatX)
         self.b = theano.shared(value=b_values, name=name+'_b', borrow=True)
 
-        self.output = activation(T.dot(inp.T, self.W) + self.b)
+        self.output = activation(T.dot(inp, self.W.T) + self.b)
         self.f = theano.function([inp], self.output)
         self.params = [self.W, self.b]
 
@@ -246,6 +258,23 @@ class MultitaskNetwork:
         self.forward = ForwardLayer(self.conv2.output.flatten(2), constants.FORWARD1_FILTER_SIZE,
             constants.FORWARD1_BIAS_SIZE, "forward")
 
+        t_inp = theano.tensor.dtensor4()
+        conv1 = ConvolutionBuilder(t_inp, constants.CONV1_FILTER_SIZE,
+            constants.CONV1_BIAS_SIZE, 'conv1', stride=constants.CONV1_STRIDE)
+        maxpool = Maxpool(conv1.output, constants.MAXPOOL_SHAPE, constants.MAXPOOL_STRIDE)
+        mean = MeanSubtract(maxpool.output, constants.MEAN_KERNEL)
+        conv2 = ConvolutionBuilder(mean.output, constants.CONV1_FILTER_SIZE,
+                constants.CONV1_BIAS_SIZE, 'conv2')
+        forward = ForwardLayer(conv2.output.flatten(2), constants.FORWARD1_FILTER_SIZE,
+            constants.FORWARD1_BIAS_SIZE, "forward")
+        tmp = np.random.rand(20,1,200,40)
+        print(t_inp.shape.eval({t_inp: tmp}))
+        print('conv1:', theano.function([t_inp], conv1.output.shape)(tmp))
+        print('max:', theano.function([t_inp], maxpool.output.shape)(tmp))
+        print('mean:', theano.function([t_inp], mean.output.shape)(tmp))
+        print('conv2:', theano.function([t_inp], conv2.output.shape)(tmp))
+        print('forward:', theano.function([t_inp], forward.output.shape)(tmp))
+
         self.params = self.forward.params + self.conv2.params + self.conv1.params
         if  self.multitask_flag == 0:
             task = kwargs['task']
@@ -253,7 +282,14 @@ class MultitaskNetwork:
             self.task_specific_loss = dict()
             self.task_specific_grad = dict()
             self.task_specific_components[task] = ForwardLayer(self.forward.output,
-                                                               (constants.SHARED_REPRESENTATION_SIZE, DIM_TASKS[task]), DIM_TASKS[task], task)
+                    (1, constants.SHARED_REPRESENTATION_SIZE),
+                    1, task)
+
+            forward_word = ForwardLayer(forward.output,
+                    (1, constants.SHARED_REPRESENTATION_SIZE),
+                    1, task)
+            print('forward_word:', theano.function([t_inp], forward_word.output.shape)(tmp))
+
             self.params = self.task_specific_components[task].params + self.params
 
             # Loss and gradient
@@ -293,7 +329,8 @@ class MultitaskNetwork:
               the learning rate is less dependent on the batch size
         """
         p_y_given_x = T.nnet.softmax(self.task_specific_components[task].output)
-        return -T.mean(T.log(p_y_given_x)[T.arange(y.shape[0]), y])
+        #return -T.mean(T.log(p_y_given_x)[T.arange(y.shape[0]), y])
+        return -T.mean(T.log(p_y_given_x)[y])
 
     def mse(self, y, task):
         """
