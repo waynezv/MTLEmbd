@@ -1,0 +1,1024 @@
+through 299 instances out of 19871 total, avg loss since last update: 1274.16
+dev update: avg loss per instance : 718.254
+dev loss on task 0: 23.8362
+dev loss on task 1: 0
+dev loss on task 2: 1.47652
+dev loss on task 3: 1.24509
+dev loss on task 4: 4271
+dev loss on task 5: 11.3683
+dev loss on task 6: 0.598368
+through 599 instances out of 19871 total, avg loss since last update: 124.478
+through 899 instances out of 19871 total, avg loss since last update: 256.57
+dev update: avg loss per instance : 3573.01
+dev loss on task 0: 131.57
+dev loss on task 1: 0
+dev loss on task 2: 88.1107
+dev loss on task 3: 465.951
+dev loss on task 4: 20064.4
+dev loss on task 5: 524.836
+dev loss on task 6: 163.258
+through 1199 instances out of 19871 total, avg loss since last update: 961.416
+through 1499 instances out of 19871 total, avg loss since last update: 215.43
+dev update: avg loss per instance : 3241.36
+dev loss on task 0: 210.163
+dev loss on task 1: 0
+dev loss on task 2: 169.313
+dev loss on task 3: 0.117705
+dev loss on task 4: 19034.1
+dev loss on task 5: 0.549627
+dev loss on task 6: 33.9833
+through 1799 instances out of 19871 total, avg loss since last update: 1556.63
+through 2099 instances out of 19871 total, avg loss since last update: 9515.45
+dev update: avg loss per instance : 1232.12
+dev loss on task 0: 472.518
+dev loss on task 1: 0
+dev loss on task 2: 637.019
+dev loss on task 3: 849.418
+dev loss on task 4: 2878.37
+dev loss on task 5: 10.0664
+dev loss on task 6: 2545.31
+through 2399 instances out of 19871 total, avg loss since last update: 364.434
+through 2699 instances out of 19871 total, avg loss since last update: 5177.95
+dev update: avg loss per instance : 5578.54
+dev loss on task 0: 455.88
+dev loss on task 1: 0
+dev loss on task 2: 298.712
+dev loss on task 3: 542.392
+dev loss on task 4: 31980.8
+dev loss on task 5: 141.63
+dev loss on task 6: 51.8241
+through 2999 instances out of 19871 total, avg loss since last update: 40654.6
+through 3299 instances out of 19871 total, avg loss since last update: 17905.9
+dev update: avg loss per instance : 58609.9
+dev loss on task 0: 1455
+dev loss on task 1: 0
+dev loss on task 2: 1.43107
+dev loss on task 3: 0.106363
+dev loss on task 4: 350139
+dev loss on task 5: 31.4756
+dev loss on task 6: 33.443
+through 3599 instances out of 19871 total, avg loss since last update: 107577
+through 3899 instances out of 19871 total, avg loss since last update: 1161.46
+dev update: avg loss per instance : 131530
+dev loss on task 0: 925.514
+dev loss on task 1: 0
+dev loss on task 2: 2589.23
+dev loss on task 3: 316.59
+dev loss on task 4: 780605
+dev loss on task 5: 3337.78
+dev loss on task 6: 1408.07
+through 4199 instances out of 19871 total, avg loss since last update: 494796
+through 4499 instances out of 19871 total, avg loss since last update: 1516.28
+dev update: avg loss per instance : 10678.9
+dev loss on task 0: 1365.53
+dev loss on task 1: 0
+dev loss on task 2: 2.40249
+dev loss on task 3: 0.119791
+dev loss on task 4: 62697.4
+dev loss on task 5: 0.309328
+dev loss on task 6: 7.75357
+through 4799 instances out of 19871 total, avg loss since last update: 394172
+through 5099 instances out of 19871 total, avg loss since last update: 62660
+dev update: avg loss per instance : 2398.64
+dev loss on task 0: 1473.19
+dev loss on task 1: 0
+dev loss on task 2: 346.059
+dev loss on task 3: 344.371
+dev loss on task 4: 12204.9
+dev loss on task 5: 1.48214
+dev loss on task 6: 21.8176
+through 5399 instances out of 19871 total, avg loss since last update: 39464.3
+through 5699 instances out of 19871 total, avg loss since last update: 79066.3
+dev update: avg loss per instance : 144119
+dev loss on task 0: 815.261
+dev loss on task 1: 0
+dev loss on task 2: 318.36
+dev loss on task 3: 0.0974064
+dev loss on task 4: 860816
+dev loss on task 5: 1285.87
+dev loss on task 6: 1481.12
+through 5999 instances out of 19871 total, avg loss since last update: 71332.2
+through 6299 instances out of 19871 total, avg loss since last update: 559944
+dev update: avg loss per instance : 19340.8
+dev loss on task 0: 1065.8
+dev loss on task 1: 0
+dev loss on task 2: 15.3197
+dev loss on task 3: 0.0742845
+dev loss on task 4: 114963
+dev loss on task 5: 0.285236
+dev loss on task 6: 0.430142
+through 6599 instances out of 19871 total, avg loss since last update: 586768
+through 6899 instances out of 19871 total, avg loss since last update: 11925.7
+dev update: avg loss per instance : 147670
+dev loss on task 0: 3140.2
+dev loss on task 1: 0
+dev loss on task 2: 1.39156
+dev loss on task 3: 0.076688
+dev loss on task 4: 882714
+dev loss on task 5: 168.138
+dev loss on task 6: 0.426874
+through 7199 instances out of 19871 total, avg loss since last update: 1.03588e+06
+through 7499 instances out of 19871 total, avg loss since last update: 25302.3
+loss 0
+dev update: avg loss per instance : 12834.3
+dev loss on task 0: 2957.21
+dev loss on task 1: 0
+dev loss on task 2: 825.459
+dev loss on task 3: 0.78332
+dev loss on task 4: 73219.2
+dev loss on task 5: 0.29208
+dev loss on task 6: 2.73342
+through 7799 instances out of 19871 total, avg loss since last update: 1353.1
+through 8099 instances out of 19871 total, avg loss since last update: 677462
+dev update: avg loss per instance : 4032.57
+dev loss on task 0: 1510.94
+dev loss on task 1: 0
+dev loss on task 2: 1841.83
+dev loss on task 3: 2484.45
+dev loss on task 4: 11860.6
+dev loss on task 5: 4648.99
+dev loss on task 6: 1848.57
+through 8399 instances out of 19871 total, avg loss since last update: 1.64516e+06
+through 8699 instances out of 19871 total, avg loss since last update: 712610
+dev update: avg loss per instance : 266084
+dev loss on task 0: 1369.75
+dev loss on task 1: 0
+dev loss on task 2: 2330.32
+dev loss on task 3: 1388.66
+dev loss on task 4: 1.58465e+06
+dev loss on task 5: 3063.69
+dev loss on task 6: 3708.1
+through 8999 instances out of 19871 total, avg loss since last update: 36263.4
+through 9299 instances out of 19871 total, avg loss since last update: 38778.9
+dev update: avg loss per instance : 110852
+dev loss on task 0: 1208.13
+dev loss on task 1: 0
+dev loss on task 2: 1.29992
+dev loss on task 3: 0.0778543
+dev loss on task 4: 663886
+dev loss on task 5: 0.233331
+dev loss on task 6: 18.6312
+through 9599 instances out of 19871 total, avg loss since last update: 708914
+through 9899 instances out of 19871 total, avg loss since last update: 3098.3
+dev update: avg loss per instance : 218826
+dev loss on task 0: 2536.85
+dev loss on task 1: 0
+dev loss on task 2: 1.24821
+dev loss on task 3: 831.908
+dev loss on task 4: 1.30957e+06
+dev loss on task 5: 14.3364
+dev loss on task 6: 2.02633
+through 10199 instances out of 19871 total, avg loss since last update: 11053.2
+through 10499 instances out of 19871 total, avg loss since last update: 5648.42
+dev update: avg loss per instance : 223387
+dev loss on task 0: 2315.15
+dev loss on task 1: 0
+dev loss on task 2: 1.22522
+dev loss on task 3: 489.092
+dev loss on task 4: 1.33752e+06
+dev loss on task 5: 5.34283
+dev loss on task 6: 0.464211
+through 10799 instances out of 19871 total, avg loss since last update: 939765
+through 11099 instances out of 19871 total, avg loss since last update: 17343.2
+dev update: avg loss per instance : 115130
+dev loss on task 0: 3338.21
+dev loss on task 1: 0
+dev loss on task 2: 3.06629
+dev loss on task 3: 1.5179
+dev loss on task 4: 686206
+dev loss on task 5: 1.90045
+dev loss on task 6: 1233.86
+through 11399 instances out of 19871 total, avg loss since last update: 2161.06
+through 11699 instances out of 19871 total, avg loss since last update: 3312.93
+dev update: avg loss per instance : 225766
+dev loss on task 0: 2691.76
+dev loss on task 1: 0
+dev loss on task 2: 242.471
+dev loss on task 3: 0.272469
+dev loss on task 4: 1.35152e+06
+dev loss on task 5: 7.59374
+dev loss on task 6: 139.333
+through 11999 instances out of 19871 total, avg loss since last update: 4660.03
+through 12299 instances out of 19871 total, avg loss since last update: 41008.2
+dev update: avg loss per instance : 5102.49
+dev loss on task 0: 1440.36
+dev loss on task 1: 0
+dev loss on task 2: 1.17576
+dev loss on task 3: 0.0959521
+dev loss on task 4: 21479.8
+dev loss on task 5: 6343.08
+dev loss on task 6: 1350.43
+through 12599 instances out of 19871 total, avg loss since last update: 30473.7
+through 12899 instances out of 19871 total, avg loss since last update: 16593.9
+dev update: avg loss per instance : 383566
+dev loss on task 0: 2281.32
+dev loss on task 1: 0
+dev loss on task 2: 2956.66
+dev loss on task 3: 76.5428
+dev loss on task 4: 2.29176e+06
+dev loss on task 5: 2768.12
+dev loss on task 6: 1561.67
+through 13199 instances out of 19871 total, avg loss since last update: 160480
+through 13499 instances out of 19871 total, avg loss since last update: 213182
+dev update: avg loss per instance : 2.2913e+07
+dev loss on task 0: 3032.31
+dev loss on task 1: 0
+dev loss on task 2: 1.27249
+dev loss on task 3: 344.516
+dev loss on task 4: 1.37468e+08
+dev loss on task 5: 2699.19
+dev loss on task 6: 4373.51
+through 13799 instances out of 19871 total, avg loss since last update: 278070
+through 14099 instances out of 19871 total, avg loss since last update: 2.54479e+06
+dev update: avg loss per instance : 2.97093e+06
+dev loss on task 0: 3984.9
+dev loss on task 1: 0
+dev loss on task 2: 1.11098
+dev loss on task 3: 94.5281
+dev loss on task 4: 1.78215e+07
+dev loss on task 5: 1.93693
+dev loss on task 6: 1.1432
+through 14399 instances out of 19871 total, avg loss since last update: 324115
+through 14699 instances out of 19871 total, avg loss since last update: 131979
+dev update: avg loss per instance : 7.96318e+06
+dev loss on task 0: 2002.2
+dev loss on task 1: 0
+dev loss on task 2: 14.2388
+dev loss on task 3: 0.177972
+dev loss on task 4: 4.77771e+07
+dev loss on task 5: 17.3214
+dev loss on task 6: 1.70777
+through 14999 instances out of 19871 total, avg loss since last update: 935921
+through 15299 instances out of 19871 total, avg loss since last update: 30147.2
+dev update: avg loss per instance : 11439.1
+dev loss on task 0: 2223.24
+dev loss on task 1: 0
+dev loss on task 2: 622.51
+dev loss on task 3: 141.164
+dev loss on task 4: 65645.6
+dev loss on task 5: 1.95614
+dev loss on task 6: 0.366279
+through 15599 instances out of 19871 total, avg loss since last update: 580136
+through 15899 instances out of 19871 total, avg loss since last update: 340071
+dev update: avg loss per instance : 1.37072e+07
+dev loss on task 0: 4649.15
+dev loss on task 1: 0
+dev loss on task 2: 1.09022
+dev loss on task 3: 1371.71
+dev loss on task 4: 8.22328e+07
+dev loss on task 5: 4134.92
+dev loss on task 6: 0.341911
+through 16199 instances out of 19871 total, avg loss since last update: 2.27306e+06
+through 16499 instances out of 19871 total, avg loss since last update: 13848.6
+dev update: avg loss per instance : 1.34086e+06
+dev loss on task 0: 2273.11
+dev loss on task 1: 0
+dev loss on task 2: 1.10839
+dev loss on task 3: 1945.95
+dev loss on task 4: 8.04089e+06
+dev loss on task 5: 11.8191
+dev loss on task 6: 37.9682
+through 16799 instances out of 19871 total, avg loss since last update: 1.56062e+06
+through 17099 instances out of 19871 total, avg loss since last update: 421041
+dev update: avg loss per instance : 2.00175e+07
+dev loss on task 0: 4470.51
+dev loss on task 1: 0
+dev loss on task 2: 15298.4
+dev loss on task 3: 2013.18
+dev loss on task 4: 1.20077e+08
+dev loss on task 5: 992.678
+dev loss on task 6: 5376.52
+through 17399 instances out of 19871 total, avg loss since last update: 83872.9
+through 17699 instances out of 19871 total, avg loss since last update: 9167.12
+dev update: avg loss per instance : 4.42553e+07
+dev loss on task 0: 6935.3
+dev loss on task 1: 0
+dev loss on task 2: 5604.31
+dev loss on task 3: 0.177993
+dev loss on task 4: 2.6552e+08
+dev loss on task 5: 211.856
+dev loss on task 6: 0.32865
+through 17999 instances out of 19871 total, avg loss since last update: 136634
+through 18299 instances out of 19871 total, avg loss since last update: 193990
+dev update: avg loss per instance : 5878.17
+dev loss on task 0: 1523.44
+dev loss on task 1: 0
+dev loss on task 2: 1.31726
+dev loss on task 3: 0.103758
+dev loss on task 4: 33672.6
+dev loss on task 5: 23.4887
+dev loss on task 6: 48.1451
+through 18599 instances out of 19871 total, avg loss since last update: 1.54438e+06
+through 18899 instances out of 19871 total, avg loss since last update: 837795
+dev update: avg loss per instance : 319452
+dev loss on task 0: 4196.47
+dev loss on task 1: 0
+dev loss on task 2: 37.8095
+dev loss on task 3: 1.60922
+dev loss on task 4: 1.91244e+06
+dev loss on task 5: 0.29525
+dev loss on task 6: 43.3243
+through 19199 instances out of 19871 total, avg loss since last update: 51680.7
+through 299 instances out of 19871 total, avg loss since last update: 61358.6
+dev update: avg loss per instance : 365179
+dev loss on task 0: 3668.51
+dev loss on task 1: 0
+dev loss on task 2: 1667.34
+dev loss on task 3: 2.309
+dev loss on task 4: 2.18409e+06
+dev loss on task 5: 1645.98
+dev loss on task 6: 6.77525
+through 599 instances out of 19871 total, avg loss since last update: 668009
+through 899 instances out of 19871 total, avg loss since last update: 27554.4
+dev update: avg loss per instance : 38290.9
+dev loss on task 0: 2335.2
+dev loss on task 1: 0
+dev loss on task 2: 1.06214
+dev loss on task 3: 0.486442
+dev loss on task 4: 227407
+dev loss on task 5: 0.208076
+dev loss on task 6: 2.24635
+through 1199 instances out of 19871 total, avg loss since last update: 771673
+through 1499 instances out of 19871 total, avg loss since last update: 5.32669e+06
+dev update: avg loss per instance : 317851
+dev loss on task 0: 4784.99
+dev loss on task 1: 0
+dev loss on task 2: 2972.29
+dev loss on task 3: 17.1433
+dev loss on task 4: 1.88931e+06
+dev loss on task 5: 5189.42
+dev loss on task 6: 4839.55
+through 1799 instances out of 19871 total, avg loss since last update: 2.00181e+06
+through 2099 instances out of 19871 total, avg loss since last update: 451612
+dev update: avg loss per instance : 231720
+dev loss on task 0: 2031.59
+dev loss on task 1: 0
+dev loss on task 2: 1.0164
+dev loss on task 3: 0.134086
+dev loss on task 4: 1.38828e+06
+dev loss on task 5: 0.12464
+dev loss on task 6: 5.87602
+through 2399 instances out of 19871 total, avg loss since last update: 58893.7
+through 2699 instances out of 19871 total, avg loss since last update: 3210.41
+dev update: avg loss per instance : 99045.8
+dev loss on task 0: 3053.72
+dev loss on task 1: 0
+dev loss on task 2: 1224.76
+dev loss on task 3: 1067.87
+dev loss on task 4: 584988
+dev loss on task 5: 3352.74
+dev loss on task 6: 589.022
+through 2999 instances out of 19871 total, avg loss since last update: 1.62908e+06
+through 3299 instances out of 19871 total, avg loss since last update: 6320.64
+dev update: avg loss per instance : 706749
+dev loss on task 0: 1905.45
+dev loss on task 1: 0
+dev loss on task 2: 1.02349
+dev loss on task 3: 16.3961
+dev loss on task 4: 4.23118e+06
+dev loss on task 5: 4193.6
+dev loss on task 6: 3225.19
+through 3599 instances out of 19871 total, avg loss since last update: 101025
+through 3899 instances out of 19871 total, avg loss since last update: 39949
+dev update: avg loss per instance : 307231
+dev loss on task 0: 3939.75
+dev loss on task 1: 0
+dev loss on task 2: 592.136
+dev loss on task 3: 44.8342
+dev loss on task 4: 1.83479e+06
+dev loss on task 5: 2961.51
+dev loss on task 6: 1069.4
+through 4199 instances out of 19871 total, avg loss since last update: 3.50524e+06
+through 4499 instances out of 19871 total, avg loss since last update: 3.87611e+06
+dev update: avg loss per instance : 63462.1
+dev loss on task 0: 4345.72
+dev loss on task 1: 0
+dev loss on task 2: 3548.75
+dev loss on task 3: 513.667
+dev loss on task 4: 358621
+dev loss on task 5: 8923.08
+dev loss on task 6: 4820.97
+through 4799 instances out of 19871 total, avg loss since last update: 2.80333e+06
+through 5099 instances out of 19871 total, avg loss since last update: 4.94495e+06
+dev update: avg loss per instance : 264859
+dev loss on task 0: 1866.62
+dev loss on task 1: 0
+dev loss on task 2: 1828.45
+dev loss on task 3: 77.224
+dev loss on task 4: 1.57499e+06
+dev loss on task 5: 3977.01
+dev loss on task 6: 6421.31
+through 5399 instances out of 19871 total, avg loss since last update: 8816.82
+through 5699 instances out of 19871 total, avg loss since last update: 3421.39
+dev update: avg loss per instance : 21065.6
+dev loss on task 0: 2022.99
+dev loss on task 1: 0
+dev loss on task 2: 148.361
+dev loss on task 3: 893.612
+dev loss on task 4: 119846
+dev loss on task 5: 7.91598
+dev loss on task 6: 3474.96
+through 5999 instances out of 19871 total, avg loss since last update: 2.28115e+06
+through 6299 instances out of 19871 total, avg loss since last update: 214373
+dev update: avg loss per instance : 26033.6
+dev loss on task 0: 3897.85
+dev loss on task 1: 0
+dev loss on task 2: 1.21764
+dev loss on task 3: 0.100612
+dev loss on task 4: 150822
+dev loss on task 5: 1342.44
+dev loss on task 6: 138.373
+through 6599 instances out of 19871 total, avg loss since last update: 5247.14
+through 6899 instances out of 19871 total, avg loss since last update: 3153.7
+dev update: avg loss per instance : 568101
+dev loss on task 0: 2541.08
+dev loss on task 1: 0
+dev loss on task 2: 4357.44
+dev loss on task 3: 2798.05
+dev loss on task 4: 3.398e+06
+dev loss on task 5: 849.489
+dev loss on task 6: 71.757
+through 7199 instances out of 19871 total, avg loss since last update: 3.10402e+06
+through 7499 instances out of 19871 total, avg loss since last update: 428423
+dev update: avg loss per instance : 8.94601e+06
+dev loss on task 0: 2563.5
+dev loss on task 1: 0
+dev loss on task 2: 939.539
+dev loss on task 3: 0.0858301
+dev loss on task 4: 5.36723e+07
+dev loss on task 5: 6.84658
+dev loss on task 6: 354.96
+through 7799 instances out of 19871 total, avg loss since last update: 9.24944e+06
+through 8099 instances out of 19871 total, avg loss since last update: 9215.31
+dev update: avg loss per instance : 13396.7
+dev loss on task 0: 2101.2
+dev loss on task 1: 0
+dev loss on task 2: 2925.29
+dev loss on task 3: 2497.63
+dev loss on task 4: 68248.3
+dev loss on task 5: 1983.5
+dev loss on task 6: 2624.63
+through 8399 instances out of 19871 total, avg loss since last update: 1.1036e+07
+through 8699 instances out of 19871 total, avg loss since last update: 628812
+dev update: avg loss per instance : 37859.6
+dev loss on task 0: 2702.22
+dev loss on task 1: 0
+dev loss on task 2: 2427.44
+dev loss on task 3: 2400.07
+dev loss on task 4: 216155
+dev loss on task 5: 523.678
+dev loss on task 6: 2950.85
+through 8999 instances out of 19871 total, avg loss since last update: 347900
+through 9299 instances out of 19871 total, avg loss since last update: 29786.5
+dev update: avg loss per instance : 43467.6
+dev loss on task 0: 5020.55
+dev loss on task 1: 0
+dev loss on task 2: 4243.83
+dev loss on task 3: 0.103027
+dev loss on task 4: 250065
+dev loss on task 5: 1475.81
+dev loss on task 6: 1.40681
+through 9599 instances out of 19871 total, avg loss since last update: 345911
+loss 0
+through 9899 instances out of 19871 total, avg loss since last update: 1.71804e+06
+dev update: avg loss per instance : 407213
+dev loss on task 0: 2939.9
+dev loss on task 1: 0
+dev loss on task 2: 4966.67
+dev loss on task 3: 0.177174
+dev loss on task 4: 2.4279e+06
+dev loss on task 5: 3783.9
+dev loss on task 6: 3694.1
+through 10199 instances out of 19871 total, avg loss since last update: 244473
+through 10499 instances out of 19871 total, avg loss since last update: 8.66457e+06
+dev update: avg loss per instance : 323063
+dev loss on task 0: 2760.23
+dev loss on task 1: 0
+dev loss on task 2: 4845.31
+dev loss on task 3: 0.223821
+dev loss on task 4: 1.92615e+06
+dev loss on task 5: 1505.65
+dev loss on task 6: 3126.27
+through 10799 instances out of 19871 total, avg loss since last update: 3.07312e+06
+through 11099 instances out of 19871 total, avg loss since last update: 98733.3
+dev update: avg loss per instance : 455042
+dev loss on task 0: 4509.38
+dev loss on task 1: 0
+dev loss on task 2: 0.850746
+dev loss on task 3: 0.852388
+dev loss on task 4: 2.71408e+06
+dev loss on task 5: 3500.45
+dev loss on task 6: 8169.84
+through 11399 instances out of 19871 total, avg loss since last update: 223129
+through 11699 instances out of 19871 total, avg loss since last update: 1.60233e+06
+dev update: avg loss per instance : 215932
+dev loss on task 0: 3142.3
+dev loss on task 1: 0
+dev loss on task 2: 0.839032
+dev loss on task 3: 0.409892
+dev loss on task 4: 1.29246e+06
+dev loss on task 5: 0.0830653
+dev loss on task 6: 0.318738
+through 11999 instances out of 19871 total, avg loss since last update: 11594.5
+through 12299 instances out of 19871 total, avg loss since last update: 896736
+dev update: avg loss per instance : 2.19675e+06
+dev loss on task 0: 3761.94
+dev loss on task 1: 0
+dev loss on task 2: 768.239
+dev loss on task 3: 467.226
+dev loss on task 4: 1.31729e+07
+dev loss on task 5: 1212.26
+dev loss on task 6: 1344.31
+through 12599 instances out of 19871 total, avg loss since last update: 105022
+through 12899 instances out of 19871 total, avg loss since last update: 43805.8
+dev update: avg loss per instance : 643092
+dev loss on task 0: 4934.67
+dev loss on task 1: 0
+dev loss on task 2: 0.900467
+dev loss on task 3: 7.4093
+dev loss on task 4: 3.84764e+06
+dev loss on task 5: 4538.24
+dev loss on task 6: 1437.37
+through 13199 instances out of 19871 total, avg loss since last update: 754895
+through 13499 instances out of 19871 total, avg loss since last update: 365751
+dev update: avg loss per instance : 27897.1
+dev loss on task 0: 3874.19
+dev loss on task 1: 0
+dev loss on task 2: 1231.98
+dev loss on task 3: 2.24294
+dev loss on task 4: 159728
+dev loss on task 5: 180.199
+dev loss on task 6: 2366.04
+through 13799 instances out of 19871 total, avg loss since last update: 120777
+through 14099 instances out of 19871 total, avg loss since last update: 251307
+dev update: avg loss per instance : 4.17427e+06
+dev loss on task 0: 3704.43
+dev loss on task 1: 0
+dev loss on task 2: 505.085
+dev loss on task 3: 3709.62
+dev loss on task 4: 2.50312e+07
+dev loss on task 5: 747.872
+dev loss on task 6: 5753.74
+through 14399 instances out of 19871 total, avg loss since last update: 1.89785e+06
+through 14699 instances out of 19871 total, avg loss since last update: 57526.5
+dev update: avg loss per instance : 691288
+dev loss on task 0: 5859.02
+dev loss on task 1: 0
+dev loss on task 2: 5802.64
+dev loss on task 3: 0.087957
+dev loss on task 4: 4.13042e+06
+dev loss on task 5: 4214.95
+dev loss on task 6: 1444.68
+through 14999 instances out of 19871 total, avg loss since last update: 149185
+through 15299 instances out of 19871 total, avg loss since last update: 174198
+dev update: avg loss per instance : 283659
+dev loss on task 0: 2707.55
+dev loss on task 1: 0
+dev loss on task 2: 189.589
+dev loss on task 3: 363.01
+dev loss on task 4: 1.69856e+06
+dev loss on task 5: 118.352
+dev loss on task 6: 24.2531
+through 15599 instances out of 19871 total, avg loss since last update: 254629
+through 15899 instances out of 19871 total, avg loss since last update: 408010
+dev update: avg loss per instance : 9.27927e+06
+dev loss on task 0: 7199.71
+dev loss on task 1: 0
+dev loss on task 2: 4470.7
+dev loss on task 3: 2620.26
+dev loss on task 4: 5.5642e+07
+dev loss on task 5: 12819.2
+dev loss on task 6: 6568.02
+through 16199 instances out of 19871 total, avg loss since last update: 4.40012e+06
+through 16499 instances out of 19871 total, avg loss since last update: 88999.9
+dev update: avg loss per instance : 540827
+dev loss on task 0: 4589.54
+dev loss on task 1: 0
+dev loss on task 2: 4448.68
+dev loss on task 3: 1586.53
+dev loss on task 4: 3.22953e+06
+dev loss on task 5: 1938.01
+dev loss on task 6: 2874.3
+through 16799 instances out of 19871 total, avg loss since last update: 4315.42
+through 17099 instances out of 19871 total, avg loss since last update: 229493
+dev update: avg loss per instance : 6.5603e+06
+dev loss on task 0: 2988.25
+dev loss on task 1: 0
+dev loss on task 2: 9775.16
+dev loss on task 3: 1956.31
+dev loss on task 4: 3.93347e+07
+dev loss on task 5: 7046.4
+dev loss on task 6: 5350.98
+through 17399 instances out of 19871 total, avg loss since last update: 290374
+through 17699 instances out of 19871 total, avg loss since last update: 1.75122e+06
+dev update: avg loss per instance : 213527
+dev loss on task 0: 8942.99
+dev loss on task 1: 0
+dev loss on task 2: 1.01352
+dev loss on task 3: 0.0889534
+dev loss on task 4: 1.27222e+06
+dev loss on task 5: 0.99027
+dev loss on task 6: 1.76597
+through 17999 instances out of 19871 total, avg loss since last update: 64154.2
+through 18299 instances out of 19871 total, avg loss since last update: 20951.2
+dev update: avg loss per instance : 159664
+dev loss on task 0: 4134.76
+dev loss on task 1: 0
+dev loss on task 2: 97.5924
+dev loss on task 3: 949.005
+dev loss on task 4: 952317
+dev loss on task 5: 377.035
+dev loss on task 6: 113.309
+through 18599 instances out of 19871 total, avg loss since last update: 73513.4
+through 18899 instances out of 19871 total, avg loss since last update: 6.11694e+06
+dev update: avg loss per instance : 1.14776e+07
+dev loss on task 0: 5374.67
+dev loss on task 1: 0
+dev loss on task 2: 2284.07
+dev loss on task 3: 20.1692
+dev loss on task 4: 6.8854e+07
+dev loss on task 5: 1450.81
+dev loss on task 6: 2438.9
+through 19199 instances out of 19871 total, avg loss since last update: 4.81262e+06
+through 299 instances out of 19871 total, avg loss since last update: 496433
+dev update: avg loss per instance : 236010
+dev loss on task 0: 6617.24
+dev loss on task 1: 0
+dev loss on task 2: 2.31185
+dev loss on task 3: 0.0356019
+dev loss on task 4: 1.40944e+06
+dev loss on task 5: 0.0970633
+dev loss on task 6: 9.11204
+through 599 instances out of 19871 total, avg loss since last update: 268581
+through 899 instances out of 19871 total, avg loss since last update: 280958
+dev update: avg loss per instance : 409205
+dev loss on task 0: 4968.3
+dev loss on task 1: 0
+dev loss on task 2: 314.751
+dev loss on task 3: 0.286755
+dev loss on task 4: 2.43812e+06
+dev loss on task 5: 2725.78
+dev loss on task 6: 9105.69
+through 1199 instances out of 19871 total, avg loss since last update: 115610
+through 1499 instances out of 19871 total, avg loss since last update: 14924.3
+dev update: avg loss per instance : 8.50807e+07
+dev loss on task 0: 4829.39
+dev loss on task 1: 0
+dev loss on task 2: 328.851
+dev loss on task 3: 0.0491074
+dev loss on task 4: 5.10479e+08
+dev loss on task 5: 0.118369
+dev loss on task 6: 2.88422
+through 1799 instances out of 19871 total, avg loss since last update: 148586
+through 2099 instances out of 19871 total, avg loss since last update: 35444.8
+dev update: avg loss per instance : 203948
+dev loss on task 0: 3237.59
+dev loss on task 1: 0
+dev loss on task 2: 2015.88
+dev loss on task 3: 0.103858
+dev loss on task 4: 1.21672e+06
+dev loss on task 5: 1671.97
+dev loss on task 6: 48.5129
+through 2399 instances out of 19871 total, avg loss since last update: 2.70164e+06
+through 2699 instances out of 19871 total, avg loss since last update: 48662.6
+dev update: avg loss per instance : 2.18095e+06
+dev loss on task 0: 3063.71
+dev loss on task 1: 0
+dev loss on task 2: 3547.38
+dev loss on task 3: 5588.01
+dev loss on task 4: 1.30696e+07
+dev loss on task 5: 1601.77
+dev loss on task 6: 2373.64
+through 2999 instances out of 19871 total, avg loss since last update: 2.2934e+06
+through 3299 instances out of 19871 total, avg loss since last update: 996525
+dev update: avg loss per instance : 44444.2
+dev loss on task 0: 6205.23
+dev loss on task 1: 0
+dev loss on task 2: 6920.13
+dev loss on task 3: 1781.66
+dev loss on task 4: 230484
+dev loss on task 5: 14262.4
+dev loss on task 6: 7012.55
+through 3599 instances out of 19871 total, avg loss since last update: 56008.9
+through 3899 instances out of 19871 total, avg loss since last update: 2.23174e+06
+dev update: avg loss per instance : 1.38077e+06
+dev loss on task 0: 6070.2
+dev loss on task 1: 0
+dev loss on task 2: 11939.1
+dev loss on task 3: 1918.94
+dev loss on task 4: 8.24885e+06
+dev loss on task 5: 9880.55
+dev loss on task 6: 5958.98
+through 4199 instances out of 19871 total, avg loss since last update: 6.11528e+06
+through 4499 instances out of 19871 total, avg loss since last update: 81803.9
+dev update: avg loss per instance : 27197.5
+dev loss on task 0: 8119.34
+dev loss on task 1: 0
+dev loss on task 2: 8296.4
+dev loss on task 3: 4014.58
+dev loss on task 4: 142273
+dev loss on task 5: 178.856
+dev loss on task 6: 303.213
+through 4799 instances out of 19871 total, avg loss since last update: 557085
+through 5099 instances out of 19871 total, avg loss since last update: 238123
+dev update: avg loss per instance : 3.21469e+06
+dev loss on task 0: 7393.24
+dev loss on task 1: 0
+dev loss on task 2: 0.635485
+dev loss on task 3: 0.0697161
+dev loss on task 4: 1.92795e+07
+dev loss on task 5: 0.0816929
+dev loss on task 6: 1240.36
+through 5399 instances out of 19871 total, avg loss since last update: 8.50787e+06
+through 5699 instances out of 19871 total, avg loss since last update: 639792
+dev update: avg loss per instance : 8.24912e+07
+dev loss on task 0: 4314.03
+dev loss on task 1: 0
+dev loss on task 2: 0.606503
+dev loss on task 3: 0.0537778
+dev loss on task 4: 4.94943e+08
+dev loss on task 5: 8.79496
+dev loss on task 6: 0.790255
+through 5999 instances out of 19871 total, avg loss since last update: 126770
+through 6299 instances out of 19871 total, avg loss since last update: 459916
+dev update: avg loss per instance : 1.2382e+06
+dev loss on task 0: 3798.2
+dev loss on task 1: 0
+dev loss on task 2: 234.829
+dev loss on task 3: 1963.72
+dev loss on task 4: 7.41836e+06
+dev loss on task 5: 57.6143
+dev loss on task 6: 4776.58
+through 6599 instances out of 19871 total, avg loss since last update: 6.92157e+06
+through 6899 instances out of 19871 total, avg loss since last update: 807912
+dev update: avg loss per instance : 954515
+dev loss on task 0: 5388.88
+dev loss on task 1: 0
+dev loss on task 2: 3336.71
+dev loss on task 3: 184.441
+dev loss on task 4: 5.70282e+06
+dev loss on task 5: 6036.46
+dev loss on task 6: 9343.88
+through 7199 instances out of 19871 total, avg loss since last update: 9069.94
+through 7499 instances out of 19871 total, avg loss since last update: 3.36618e+06
+dev update: avg loss per instance : 2.87394e+06
+dev loss on task 0: 2634.5
+dev loss on task 1: 0
+dev loss on task 2: 1036.95
+dev loss on task 3: 277.232
+dev loss on task 4: 1.72321e+07
+dev loss on task 5: 11.038
+dev loss on task 6: 7575.4
+through 7799 instances out of 19871 total, avg loss since last update: 133910
+through 8099 instances out of 19871 total, avg loss since last update: 100298
+dev update: avg loss per instance : 2.81368e+06
+dev loss on task 0: 4713.2
+dev loss on task 1: 0
+dev loss on task 2: 1500.53
+dev loss on task 3: 0.0513191
+dev loss on task 4: 1.68728e+07
+dev loss on task 5: 1516.32
+dev loss on task 6: 1632.21
+through 8399 instances out of 19871 total, avg loss since last update: 7.38778e+06
+through 8699 instances out of 19871 total, avg loss since last update: 420989
+dev update: avg loss per instance : 368158
+dev loss on task 0: 11195
+dev loss on task 1: 0
+dev loss on task 2: 4.13606
+dev loss on task 3: 0.0451432
+dev loss on task 4: 2.19776e+06
+dev loss on task 5: 0.090276
+dev loss on task 6: 0.134162
+through 8999 instances out of 19871 total, avg loss since last update: 6.2535e+06
+through 9299 instances out of 19871 total, avg loss since last update: 4219.64
+dev update: avg loss per instance : 224855
+dev loss on task 0: 5785.14
+dev loss on task 1: 0
+dev loss on task 2: 4311.22
+dev loss on task 3: 6801.63
+dev loss on task 4: 1.32817e+06
+dev loss on task 5: 1.73749
+dev loss on task 6: 4058.74
+through 9599 instances out of 19871 total, avg loss since last update: 21084.6
+through 9899 instances out of 19871 total, avg loss since last update: 8.42953e+06
+dev update: avg loss per instance : 1.32033e+08
+dev loss on task 0: 11548.7
+dev loss on task 1: 0
+dev loss on task 2: 7323.66
+dev loss on task 3: 0.0563274
+dev loss on task 4: 7.92174e+08
+dev loss on task 5: 0.12693
+dev loss on task 6: 3580.47
+through 10199 instances out of 19871 total, avg loss since last update: 894383
+through 10499 instances out of 19871 total, avg loss since last update: 6.75416e+06
+dev update: avg loss per instance : 1.13468e+07
+dev loss on task 0: 7957.89
+dev loss on task 1: 0
+dev loss on task 2: 0.507329
+dev loss on task 3: 0.0365198
+dev loss on task 4: 6.80726e+07
+dev loss on task 5: 0.126718
+dev loss on task 6: 0.0798869
+through 10799 instances out of 19871 total, avg loss since last update: 225650
+through 11099 instances out of 19871 total, avg loss since last update: 409972
+dev update: avg loss per instance : 270572
+dev loss on task 0: 4489.57
+dev loss on task 1: 0
+dev loss on task 2: 0.502928
+dev loss on task 3: 0.0564348
+dev loss on task 4: 1.61894e+06
+dev loss on task 5: 3.04017
+dev loss on task 6: 0.199341
+through 11399 instances out of 19871 total, avg loss since last update: 230466
+through 11699 instances out of 19871 total, avg loss since last update: 117563
+dev update: avg loss per instance : 1.05272e+06
+dev loss on task 0: 6984.2
+dev loss on task 1: 0
+dev loss on task 2: 3284.68
+dev loss on task 3: 21.5276
+dev loss on task 4: 6.30602e+06
+dev loss on task 5: 39.032
+dev loss on task 6: 32.6514
+through 11999 instances out of 19871 total, avg loss since last update: 3.37889e+06
+through 12299 instances out of 19871 total, avg loss since last update: 18868.7
+loss 0
+dev update: avg loss per instance : 4.81162e+06
+dev loss on task 0: 3504.8
+dev loss on task 1: 0
+dev loss on task 2: 3928.86
+dev loss on task 3: 1567.73
+dev loss on task 4: 2.88533e+07
+dev loss on task 5: 5589.4
+dev loss on task 6: 1827.44
+through 12599 instances out of 19871 total, avg loss since last update: 1.46796e+07
+through 12899 instances out of 19871 total, avg loss since last update: 4835.25
+dev update: avg loss per instance : 853258
+dev loss on task 0: 3929.77
+dev loss on task 1: 0
+dev loss on task 2: 1598.14
+dev loss on task 3: 1816
+dev loss on task 4: 5.10125e+06
+dev loss on task 5: 3152.4
+dev loss on task 6: 7816.47
+through 13199 instances out of 19871 total, avg loss since last update: 153340
+through 13499 instances out of 19871 total, avg loss since last update: 55441.4
+dev update: avg loss per instance : 42907.6
+dev loss on task 0: 7440.7
+dev loss on task 1: 0
+dev loss on task 2: 3052.92
+dev loss on task 3: 0.746165
+dev loss on task 4: 246593
+dev loss on task 5: 35.0323
+dev loss on task 6: 324.551
+through 13799 instances out of 19871 total, avg loss since last update: 200074
+through 14099 instances out of 19871 total, avg loss since last update: 7370
+dev update: avg loss per instance : 3.05209e+06
+dev loss on task 0: 2902.12
+dev loss on task 1: 0
+dev loss on task 2: 36.2882
+dev loss on task 3: 6189.62
+dev loss on task 4: 1.83023e+07
+dev loss on task 5: 181.687
+dev loss on task 6: 974.915
+through 14399 instances out of 19871 total, avg loss since last update: 134814
+through 14699 instances out of 19871 total, avg loss since last update: 5713.15
+dev update: avg loss per instance : 5.43682e+06
+dev loss on task 0: 9250.03
+dev loss on task 1: 0
+dev loss on task 2: 0.601766
+dev loss on task 3: 2495.61
+dev loss on task 4: 3.26091e+07
+dev loss on task 5: 53.9394
+dev loss on task 6: 2.33951
+through 14999 instances out of 19871 total, avg loss since last update: 73817.7
+through 15299 instances out of 19871 total, avg loss since last update: 90638.6
+dev update: avg loss per instance : 4.60383e+06
+dev loss on task 0: 17137.5
+dev loss on task 1: 0
+dev loss on task 2: 0.563235
+dev loss on task 3: 2.84154
+dev loss on task 4: 2.76058e+07
+dev loss on task 5: 0.168195
+dev loss on task 6: 0.10144
+through 15599 instances out of 19871 total, avg loss since last update: 9.99403e+06
+through 15899 instances out of 19871 total, avg loss since last update: 9.48012e+06
+dev update: avg loss per instance : 999518
+dev loss on task 0: 7477.1
+dev loss on task 1: 0
+dev loss on task 2: 2.73455
+dev loss on task 3: 4.36313
+dev loss on task 4: 5.98642e+06
+dev loss on task 5: 3201.57
+dev loss on task 6: 23.7322
+through 16199 instances out of 19871 total, avg loss since last update: 1.31828e+06
+through 16499 instances out of 19871 total, avg loss since last update: 12884.6
+dev update: avg loss per instance : 341664
+dev loss on task 0: 9065
+dev loss on task 1: 0
+dev loss on task 2: 3259.76
+dev loss on task 3: 1338.03
+dev loss on task 4: 2.03633e+06
+dev loss on task 5: 0.174071
+dev loss on task 6: 1.19008
+through 16799 instances out of 19871 total, avg loss since last update: 21444.5
+through 17099 instances out of 19871 total, avg loss since last update: 7.7592e+06
+dev update: avg loss per instance : 104982
+dev loss on task 0: 12110.8
+dev loss on task 1: 0
+dev loss on task 2: 2.44513
+dev loss on task 3: 0.0564521
+dev loss on task 4: 617778
+dev loss on task 5: 0.14734
+dev loss on task 6: 0.212985
+through 17399 instances out of 19871 total, avg loss since last update: 1.62886e+07
+through 17699 instances out of 19871 total, avg loss since last update: 141401
+dev update: avg loss per instance : 9583.4
+dev loss on task 0: 4779.71
+dev loss on task 1: 0
+dev loss on task 2: 2670.29
+dev loss on task 3: 1249.58
+dev loss on task 4: 43472.6
+dev loss on task 5: 32.0402
+dev loss on task 6: 5296.37
+through 17999 instances out of 19871 total, avg loss since last update: 7105.68
+through 18299 instances out of 19871 total, avg loss since last update: 285837
+dev update: avg loss per instance : 77998.4
+dev loss on task 0: 4817.12
+dev loss on task 1: 0
+dev loss on task 2: 12747.2
+dev loss on task 3: 1.40918
+dev loss on task 4: 436250
+dev loss on task 5: 7881.46
+dev loss on task 6: 6293.44
+through 18599 instances out of 19871 total, avg loss since last update: 5689.48
+through 18899 instances out of 19871 total, avg loss since last update: 372398
+dev update: avg loss per instance : 792914
+dev loss on task 0: 5848.66
+dev loss on task 1: 0
+dev loss on task 2: 14594.2
+dev loss on task 3: 3549.73
+dev loss on task 4: 4.71459e+06
+dev loss on task 5: 12241.8
+dev loss on task 6: 6684.9
+through 19199 instances out of 19871 total, avg loss since last update: 4.41557e+06
+through 299 instances out of 19871 total, avg loss since last update: 227983
+dev update: avg loss per instance : 1.45174e+06
+dev loss on task 0: 12041.5
+dev loss on task 1: 0
+dev loss on task 2: 0.677498
+dev loss on task 3: 7491.4
+dev loss on task 4: 8.69089e+06
+dev loss on task 5: 1.41364
+dev loss on task 6: 0.223312
+through 599 instances out of 19871 total, avg loss since last update: 621246
+through 899 instances out of 19871 total, avg loss since last update: 2.85375e+06
+dev update: avg loss per instance : 3.1977e+06
+dev loss on task 0: 5595.49
+dev loss on task 1: 0
+dev loss on task 2: 3698.07
+dev loss on task 3: 6022.83
+dev loss on task 4: 1.91671e+07
+dev loss on task 5: 556.708
+dev loss on task 6: 3234.39
+through 1199 instances out of 19871 total, avg loss since last update: 30842.5
+through 1499 instances out of 19871 total, avg loss since last update: 2.73005e+06
+dev update: avg loss per instance : 2.14734e+06
+dev loss on task 0: 5739.62
+dev loss on task 1: 0
+dev loss on task 2: 4486.44
+dev loss on task 3: 9.0932
+dev loss on task 4: 1.28662e+07
+dev loss on task 5: 3311.81
+dev loss on task 6: 4304.12
+through 1799 instances out of 19871 total, avg loss since last update: 2.38871e+06
+through 2099 instances out of 19871 total, avg loss since last update: 9.62149e+06
+dev update: avg loss per instance : 1.85501e+08
+dev loss on task 0: 6898.03
+dev loss on task 1: 0
+dev loss on task 2: 0.731794
+dev loss on task 3: 0.0601813
+dev loss on task 4: 1.113e+09
+dev loss on task 5: 0.0975344
+dev loss on task 6: 0.3167
+through 2399 instances out of 19871 total, avg loss since last update: 141626
+through 2699 instances out of 19871 total, avg loss since last update: 310853
+dev update: avg loss per instance : 668242
+dev loss on task 0: 14895.4
+dev loss on task 1: 0
+dev loss on task 2: 1808.05
+dev loss on task 3: 975.598
+dev loss on task 4: 3.9827e+06
+dev loss on task 5: 22.533
+dev loss on task 6: 9075.29
+through 2999 instances out of 19871 total, avg loss since last update: 2.96979e+06
+through 3299 instances out of 19871 total, avg loss since last update: 596202
+dev update: avg loss per instance : 1.19627e+06
+dev loss on task 0: 8674.28
+dev loss on task 1: 0
+dev loss on task 2: 3723.69
+dev loss on task 3: 0.323808
+dev loss on task 4: 7.16373e+06
+dev loss on task 5: 1479.15
+dev loss on task 6: 2.1777
+through 3599 instances out of 19871 total, avg loss since last update: 6.3195e+06
+through 3899 instances out of 19871 total, avg loss since last update: 616380
