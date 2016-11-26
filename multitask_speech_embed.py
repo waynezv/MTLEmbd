@@ -385,7 +385,7 @@ def test_network():
 
     train_input = np.array(train_input).reshape((-1,1,constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
     train_label = np.array(train_label)
-    loss = train_net(train_input[:20,:,:], train_label[:20])
+    loss = train_net(train_input[:20,:,:,:], train_label[:20])
     print(loss)
 
 #Batch train
