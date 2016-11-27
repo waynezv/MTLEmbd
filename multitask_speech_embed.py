@@ -136,23 +136,12 @@ class ConvolutionBuilder:
         self.f = theano.function([inp], self.output)
         self.params = [self.W, self.b]
 
-        tmp = np.random.rand(20,1,200,40)
-        t_inp = theano.tensor.dtensor4()
-        out = conv2d(input=t_inp, filters=self.W, subsample=stride)
-        #print(t_inp.shape.eval({t_inp: tmp}))
-        print('conv:', theano.function([t_inp], out.shape)(tmp))
-
 
 class Maxpool:
     def __init__(self, inp, shape, stride):
         self.output = pool.pool_2d(input=inp, ds=shape, st=stride, ignore_border=True)
         self.f = theano.function([inp], self.output)
 
-        tmp = np.random.rand(20,1,25,33)
-        t_inp = theano.tensor.dtensor4()
-        out = pool.pool_2d(input=t_inp, ds=shape, st=stride, ignore_border=True)
-        print(t_inp.shape.eval({t_inp: tmp}))
-        print('max:', theano.function([t_inp], out.shape)(tmp))
 
 class MeanSubtract:
     def __init__(self, inp, kernel_size):
@@ -258,6 +247,7 @@ class MultitaskNetwork:
         self.forward = ForwardLayer(self.conv2.output.flatten(2), constants.FORWARD1_FILTER_SIZE,
             constants.FORWARD1_BIAS_SIZE, "forward")
 
+# DEBUG
         t_inp = theano.tensor.dtensor4()
         conv1 = ConvolutionBuilder(t_inp, constants.CONV1_FILTER_SIZE,
             constants.CONV1_BIAS_SIZE, 'conv1', stride=constants.CONV1_STRIDE)
@@ -268,7 +258,7 @@ class MultitaskNetwork:
         forward = ForwardLayer(conv2.output.flatten(2), constants.FORWARD1_FILTER_SIZE,
             constants.FORWARD1_BIAS_SIZE, "forward")
         tmp = np.random.rand(20,1,200,40)
-        print(t_inp.shape.eval({t_inp: tmp}))
+        print('input:', t_inp.shape.eval({t_inp: tmp}))
         print('conv1:', theano.function([t_inp], conv1.output.shape)(tmp))
         print('max:', theano.function([t_inp], maxpool.output.shape)(tmp))
         print('mean:', theano.function([t_inp], mean.output.shape)(tmp))
@@ -282,15 +272,15 @@ class MultitaskNetwork:
             self.task_specific_loss = dict()
             self.task_specific_grad = dict()
             self.task_specific_components[task] = ForwardLayer(self.forward.output,
-                    (1, constants.SHARED_REPRESENTATION_SIZE),
-                    1, task)
-
-            forward_word = ForwardLayer(forward.output,
-                    (1, constants.SHARED_REPRESENTATION_SIZE),
-                    1, task)
-            print('forward_word:', theano.function([t_inp], forward_word.output.shape)(tmp))
-
+                    (DIM_TASKS[task], constants.SHARED_REPRESENTATION_SIZE),
+                    DIM_TASKS[task], task)
             self.params = self.task_specific_components[task].params + self.params
+
+# DEBUG
+            forward_word = ForwardLayer(forward.output,
+                    (DIM_TASKS[task], constants.SHARED_REPRESENTATION_SIZE),
+                    DIM_TASKS[task], task)
+            print('forward_word:', theano.function([t_inp], forward_word.output.shape)(tmp))
 
             # Loss and gradient
             self.loss = self.negative_log_likelihood(y, task)
@@ -298,7 +288,6 @@ class MultitaskNetwork:
 
             self.task_specific_loss[task] = self.loss
             self.task_specific_grad[task] = self.grads
-
 
         else:
             self.task_specific_components = dict()
@@ -329,8 +318,8 @@ class MultitaskNetwork:
               the learning rate is less dependent on the batch size
         """
         p_y_given_x = T.nnet.softmax(self.task_specific_components[task].output)
-        #return -T.mean(T.log(p_y_given_x)[T.arange(y.shape[0]), y])
-        return -T.mean(T.log(p_y_given_x)[y])
+        return -T.mean(T.log(p_y_given_x)[T.arange(y.shape[0]), y])
+        #return -T.mean(T.log(p_y_given_x)[y])
 
     def mse(self, y, task):
         """
@@ -389,23 +378,18 @@ def test_network():
         task_label = label[single_task]
         train_input.append(tmp_vec)
         train_label.append(task_label)
+    train_input = np.array(train_input).reshape((-1, 1,
+            constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
 
-
-    train_input_shared = theano.shared(np.asarray(train_input,
-                                        dtype=theano.config.floatX),
-                            borrow=True)
-    train_label_shared = T.cast(theano.shared(np.asarray(train_label,
-                                    dtype=theano.config.floatX),
-                            borrow=True),
-                        'int32')
+    train_label = np.array(train_label).reshape(-1)
+    train_label = np.array(range(DIM_TASKS[single_task]))
 
     # Allocate symbolic variables for data
-    X = T.dtensor4('X')
-    y = T.lvector('y') #TODO: y type not agree, make it single task for now
-    batch_index = T.lscalar()  # index to a [mini]batch
-
-    network_input = X.reshape((constants.BATCH_SIZE, 1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
-    network_label = y
+    network_input = T.dtensor4('X')
+    network_label = T.lvector('y') #TODO: y type not agree, make it single task for now
+    network_input = network_input.reshape((constants.BATCH_SIZE, 1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
+    network_label = network_label
+    index = T.iscalar('index')  # index to a [mini]batch
 
     model = MultitaskNetwork(constants.BATCH_SIZE, network_input, network_label,
             multitask_flag=task_flag, task=single_task)
@@ -414,6 +398,7 @@ def test_network():
             for param_i, grad_i in zip(model.params, model.task_specific_grad[single_task])]
 
 # Single batch train
+    '''
     train_net = theano.function(
             [network_input, network_label],
             model.loss,
@@ -424,23 +409,50 @@ def test_network():
     train_label = np.array(train_label)
     loss = train_net(train_input[:20,:,:,:], train_label[:20])
     print(loss)
+    '''
 
 #Batch train
-    #train_net = theano.function(
-    #    [batch_index],
-        # model.task_specific_loss,
-    #    model.loss,
-    #    updates = updates,
-    #    givens = {
-    #        network_input: train_input_shared[batch_index*model.batch_size : (batch_index+1)*model.batch_size],
-    #        network_label: train_label_shared[batch_index*model.batch_size : (batch_index+1)*model.batch_size]
-    #    }
-    #)
+    if task == 'word':
+        num_train_batches = train_input.shape[0] // constants.BATCH_SIZE
+        for ind in xrange(num_train_batches):
+            loss = train_net(train_input[ind*constants.BATCH_SIZE :
+                (ind+1)*constants.BATCH_SIZE],
+                    train_label[ind*constants.BATCH_SIZE :
+                (ind+1)*constants.BATCH_SIZE]
+                    )
+            print(loss)
+    elif task == 'sem_similarity':
+        pass
 
-    #num_train_batches = train_input_shared.get_value(borrow=True).shape[0] // model.batch_size
-    #for batch_ind in xrange(num_train_batches):
-    #    loss = train_net(batch_ind)
-    #    print(loss)
+    elif task == 'speaker_id':
+        pass
+
+    elif task == 'gender':
+        pass
+
+    elif task == 'age':
+        pass
+
+    elif task == 'education':
+        pass
+
+    elif task =='dialect':
+        pass
+
+
+#Multitask train
+    '''
+    multitask_train = theano.function(
+            [],
+            model.loss,
+            updates = updates,
+            givens = {
+                }
+            )
+    for batch_ind in xrange(num_train_batches):
+        loss = train_net(batch_ind)
+        print(loss)
+    '''
 
 if __name__ == '__main__':
     test_network()
