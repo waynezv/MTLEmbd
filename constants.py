@@ -1,23 +1,24 @@
 import numpy as np
 
 TASKS = ["word", "sem_similarity", "speaker_id", "gender", "age", "education", "dialect"]
-FRAMES_PER_WORD = 200
+FRAMES_PER_WORD = 100
 FRAME_SIZE = 40
 
 # Network architecture parameters
-CONV1_FILTER_SIZE = (1,1,8,8)
-CONV1_BIAS_SIZE = (1,)
-CONV1_STRIDE = (8,1)
+CONV1_FILTER_SIZE = (10,1,40,9)
+CONV1_BIAS_SIZE = (10,)
+CONV1_STRIDE = (2,2)
 
-MAXPOOL_SHAPE = (4,4)
-MAXPOOL_STRIDE = (2,2)
+MAXPOOL_SHAPE = (3,3)
+MAXPOOL_STRIDE = (1,1)
+MAXPOOL_PAD = (1,1)
 
 MEAN_KERNEL = (3,3)
 
-CONV2_FILTER_SIZE = (1,1,8,8)
-CONV2_BIAS_SIZE = (8,)
+CONV2_FILTER_SIZE = (5,10,20,5)
+CONV2_BIAS_SIZE = (5,)
 
-FORWARD1_FILTER_SIZE = (1024, 32) # output size * input size
+FORWARD1_FILTER_SIZE = (1024,720) #TODO:
 FORWARD1_BIAS_SIZE = (1024,)
 
 SHARED_REPRESENTATION_SIZE = 1024

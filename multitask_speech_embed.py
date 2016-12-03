@@ -4,7 +4,6 @@ import os
 import re
 import argparse as agp
 import six.moves.cPickle as pickle
-
 import numpy as np
 import theano
 import theano.tensor as T
@@ -16,14 +15,13 @@ from theano.tensor.signal import pool
 import constants
 
 rng = np.random.RandomState(93492019)
-caller_info_dic = dict() #a dictionary of conversation ids to callers [a,b]
-DIM_TASKS = {"word": 100, "sem_similarity": 50, "gender": 2, "age": 1}
-
+caller_info_dic = dict() # dictionary of callers id to callers info
+DIM_TASKS = {"word": 100, "sem_similarity": 50, "gender": 2, "age": 1} # dimension of tasks
 
 class CallerInfo:
     def __init__(self, userid, gender = 0, age = 0, education = 0, dialect = 0):
         self.userid = userid
-        self.gender = gender #0 female 1 male
+        self.gender = gender
         self.age = age
         self.education = education
         self.dialect = dialect
@@ -45,7 +43,6 @@ def load_caller_info():
         dialect = str(caller[5])
         if not dialect:
             dialect = 'UNK'
-            print(dialect)
         if dialect in dialect_dict:
             dialect = dialect_dict[dialect]
         else:
@@ -135,7 +132,6 @@ class ConvolutionBuilder:
             stride = kwargs['stride']
         else:
             stride = (1,1)
-        #self.out = conv2d(input=inp, filters=self.W, subsample=stride, border_mode='full')
         self.out = conv2d(input=inp, filters=self.W, subsample=stride)
         self.output = T.nnet.relu(self.out + self.b.dimshuffle('x', 0, 'x', 'x'))
         self.f = theano.function([inp], self.output)
@@ -143,8 +139,9 @@ class ConvolutionBuilder:
 
 
 class Maxpool:
-    def __init__(self, inp, shape, stride):
-        self.output = pool.pool_2d(input=inp, ds=shape, st=stride, ignore_border=True)
+    def __init__(self, inp, shape, stride, pad):
+        self.output = pool.pool_2d(input=inp, ds=shape, st=stride,
+                ignore_border=True, padding=pad)
         self.f = theano.function([inp], self.output)
 
 
@@ -155,17 +152,19 @@ class MeanSubtract:
         :para kernel_size:
         """
         self.kernel_size = kernel_size
-        self.filter_shape = (1, 1, self.kernel_size[0], self.kernel_size[1])
+        self.filter_shape = (10, 10, self.kernel_size[0], self.kernel_size[1])
         self.filters = self.mean_filter().reshape(self.filter_shape)
         self.filters = theano.shared(np.asarray(self.filters,
-                                            dtype='float64'),
+                                            dtype=inp.dtype),
                                 borrow=True)
 
         self.mean = conv2d(input=inp, filters=self.filters,
                 filter_shape=self.filter_shape,
-                border_mode='full') # TODO: might have bug
-        mid = int(np.floor(self.kernel_size[0]/2.))
-        new_inp = inp - self.mean[:,:,mid:-mid,mid:-mid]
+                border_mode='half')
+        # TODO: problematic
+        #mid = int(np.floor(self.kernel_size[0]/2.))
+        #new_inp = inp - self.mean[:,:,mid:-mid,mid:-mid]
+        new_inp = inp - self.mean
 
         self.output = new_inp
         self.f = theano.function([inp], self.output)
@@ -185,7 +184,7 @@ class ForwardLayer:
         :param inp: a symbolic tensor of shape (number of examples, input dimension)
 
         :type filter_size: tuple or list of length 2
-        :param filter_size: (input dimension, output dimension)
+        :param filter_size: (output dimension, input dimension)
 
         :type bias_size: tuple or list of length 2
         :param bias_size: size of bias
@@ -203,7 +202,7 @@ class ForwardLayer:
                 high=np.sqrt(6. / (input_size + output_size)),
                 size=filter_size
             ),
-            dtype=theano.config.floatX
+            dtype=inp.dtype
         )
 
         if activation == theano.tensor.nnet.sigmoid:
@@ -211,7 +210,7 @@ class ForwardLayer:
 
         self.W = theano.shared(value=W_values, name=name+'_W', borrow=True)
 
-        b_values = np.zeros(bias_size, dtype=theano.config.floatX)
+        b_values = np.zeros(bias_size, dtype=inp.dtype)
         self.b = theano.shared(value=b_values, name=name+'_b', borrow=True)
 
         self.output = activation(T.dot(inp, self.W.T) + self.b)
@@ -234,34 +233,40 @@ class MultitaskNetwork:
         self.multitask_flag = kwargs['multitask_flag']
         self.batch_size = batch_size
 
-        # Reshape matrix of size (batch size, frames per word x frame size)
         inp = X
 
         self.conv1 = ConvolutionBuilder(inp, constants.CONV1_FILTER_SIZE,
             constants.CONV1_BIAS_SIZE, 'conv1', stride=constants.CONV1_STRIDE)
-        self.maxpool = Maxpool(self.conv1.output, constants.MAXPOOL_SHAPE, constants.MAXPOOL_STRIDE)
-        self.mean = MeanSubtract(self.maxpool.output, constants.MEAN_KERNEL)
-        self.conv2 = ConvolutionBuilder(self.mean.output, constants.CONV1_FILTER_SIZE,
-                constants.CONV1_BIAS_SIZE, 'conv2')
-        self.forward = ForwardLayer(self.conv2.output.flatten(2), constants.FORWARD1_FILTER_SIZE,
-            constants.FORWARD1_BIAS_SIZE, "forward")
+        self.maxpool = Maxpool(self.conv1.output, constants.MAXPOOL_SHAPE,
+                constants.MAXPOOL_STRIDE, constants.MAXPOOL_PAD)
+        #self.mean = MeanSubtract(self.maxpool.output, constants.MEAN_KERNEL)
+        self.conv2 = ConvolutionBuilder(self.maxpool.output, constants.CONV2_FILTER_SIZE,
+                constants.CONV2_BIAS_SIZE, 'conv2')
+        self.flattened = self.conv2.output.flatten(2)
+        self.forward = ForwardLayer(self.flattened,
+                constants.FORWARD1_FILTER_SIZE,
+                constants.FORWARD1_BIAS_SIZE, "forward")
 
 #IF DEBUG
         t_inp = theano.tensor.dtensor4()
         conv1 = ConvolutionBuilder(t_inp, constants.CONV1_FILTER_SIZE,
             constants.CONV1_BIAS_SIZE, 'conv1', stride=constants.CONV1_STRIDE)
-        maxpool = Maxpool(conv1.output, constants.MAXPOOL_SHAPE, constants.MAXPOOL_STRIDE)
-        mean = MeanSubtract(maxpool.output, constants.MEAN_KERNEL)
-        conv2 = ConvolutionBuilder(mean.output, constants.CONV1_FILTER_SIZE,
-                constants.CONV1_BIAS_SIZE, 'conv2')
-        forward = ForwardLayer(conv2.output.flatten(2), constants.FORWARD1_FILTER_SIZE,
-            constants.FORWARD1_BIAS_SIZE, "forward")
-        tmp = np.random.rand(20,1,200,40)
+        maxpool = Maxpool(conv1.output, constants.MAXPOOL_SHAPE,
+                constants.MAXPOOL_STRIDE, constants.MAXPOOL_PAD)
+        #mean = MeanSubtract(maxpool.output, constants.MEAN_KERNEL)
+        conv2 = ConvolutionBuilder(maxpool.output, constants.CONV2_FILTER_SIZE,
+                constants.CONV2_BIAS_SIZE, 'conv2')
+        flattened = conv2.output.flatten(2)
+        forward = ForwardLayer(flattened,
+                constants.FORWARD1_FILTER_SIZE,
+                constants.FORWARD1_BIAS_SIZE, "forward")
+        tmp = np.random.rand(constants.BATCH_SIZE,1,100,40)
         print('input:', t_inp.shape.eval({t_inp: tmp}))
         print('conv1:', theano.function([t_inp], conv1.output.shape)(tmp))
         print('max:', theano.function([t_inp], maxpool.output.shape)(tmp))
-        print('mean:', theano.function([t_inp], mean.output.shape)(tmp))
+        #print('mean:', theano.function([t_inp], mean.output.shape)(tmp))
         print('conv2:', theano.function([t_inp], conv2.output.shape)(tmp))
+        print('flat:', theano.function([t_inp], flattened.shape)(tmp))
         print('forward:', theano.function([t_inp], forward.output.shape)(tmp))
 #ENDIF
 
@@ -287,12 +292,10 @@ class MultitaskNetwork:
             if task in ['word', 'speaker_id', 'gender', 'education', 'dialect']:
                 self.p_y_given_x = T.nnet.softmax(self.task_specific_components[task].output)
                 self.loss = self.negative_log_likelihood(y, task)
-                self.y_pred = T.argmax(self.p_y_given_x, axis=1)
-                self.predict_error = T.mean(T.neq(self.y_pred, y))
+                #self.y_pred = T.argmax(self.p_y_given_x, axis=1)
+                #self.predict_error = T.mean(T.neq(self.y_pred, y))
             else:
                 self.loss = self.mse(y, task)
-                self.predict = self.task_specific_components[task].output
-                self.predict_error = self.loss
 
             self.grads = T.grad(cost=self.loss, wrt=self.params)
             self.task_specific_loss[task] = self.loss
@@ -313,7 +316,7 @@ class MultitaskNetwork:
                 if task in ['word', 'speaker_id', 'gender', 'education', 'dialect']:
                     loss = self.negative_log_likelihood(y[task], task)
                 else:
-                    loss = self.mse(y, task)
+                    loss = self.mse(y[task], task)
                 grad = T.grad(loss, self.params)
                 self.task_specific_loss[task] = loss
                 self.task_specific_grad[task] = grad
@@ -330,7 +333,10 @@ class MultitaskNetwork:
         Note: we use the mean instead of the sum so that
               the learning rate is less dependent on the batch size
         """
-        return -T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
+        #return -T.mean(T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
+        Lp = T.log(self.p_y_given_x)
+        return -T.mean([ Lp[i, y[i]]
+            for i in xrange(constants.BATCH_SIZE) ])
 
     def mse(self, y, task):
         """
@@ -341,9 +347,8 @@ class MultitaskNetwork:
                   output to be matched
         """
         output = self.task_specific_components[task].output
-        return T.mean((output - y)**2)
-
-
+        return T.mean(np.power(output.reshape((constants.BATCH_SIZE,))
+            - y.reshape((constants.BATCH_SIZE,)) ,2))
 
 
 def load_word_dict(file='word_dict.txt'):
@@ -357,13 +362,13 @@ def load_word_dict(file='word_dict.txt'):
 def test_network():
     # Prepare data
     task_flag = 0
-    single_task = 'word'
+    #single_task = 'word'
     # single_task = 'sem_similarity'
-    # single_task = 'speaker_id'
-    # single_task = 'gender'
-    # single_task = 'age'
-    # single_task = 'education'
-    # single_task = 'dialect'
+    #single_task = 'speaker_id'
+    #single_task = 'gender'
+    #single_task = 'age'
+    single_task = 'education'
+    #single_task = 'dialect'
     load_caller_info()
     tot_input = []
     tot_label = []
@@ -385,7 +390,6 @@ def test_network():
     TRAIN_LIST = SHUFFLE_LIST[: TRAIN_SIZE]
     VAL_LIST = SHUFFLE_LIST[TRAIN_SIZE : TRAIN_SIZE+VAL_SIZE]
     TEST_LIST = SHUFFLE_LIST[TRAIN_SIZE+VAL_SIZE : TOT_DATA_SIZE]
-    train_counter = 0
     for i in xrange(TOT_DATA_SIZE):
         fbank_file = os.path.join(constants.DATA_PATH, word_feat_filelist[i])
         instance = Instance(fbank_file, task_flag)
@@ -397,7 +401,6 @@ def test_network():
         dialect = caller_info_dic[spk_id].dialect
         label = {'word':word_dict[word], 'speaker_id':spk_id, 'gender':gender,
                     'age':age, 'education':education, 'dialect':dialect}
-        print(label)
 
         # Truncate or pad word feat to FRAMES_PER_WORD
         tmp_vec = np.zeros((constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
@@ -421,16 +424,16 @@ def test_network():
     val_label = tot_label[VAL_LIST]
     test_input = tot_input[TEST_LIST]
     test_label = tot_label[TEST_LIST]
-    print(tot_input.shape)
     print(tot_label.shape)
-    print(train_input.shape)
-    print(val_input.shape)
-    print(test_input.shape)
+    print(train_label.shape)
+    print(val_label.shape)
+    print(test_label.shape)
+    print(test_label)
 
     # Define network
     # Allocate symbolic variables for data
-    network_input = T.dtensor4('X')
-    network_label = T.lvector('y') #TODO: y type not agree, make it single task for now
+    network_input = T.tensor4('X', dtype=theano.config.floatX)
+    network_label = T.ivector('y')
     network_input = network_input.reshape((constants.BATCH_SIZE, 1, constants.FRAMES_PER_WORD, constants.FRAME_SIZE))
     network_label = network_label
 
@@ -447,16 +450,19 @@ def test_network():
         inputs = [network_input, network_label],
         outputs = model.loss,
         updates = updates,
+        allow_input_downcast=True
     )
 
     validate_net = theano.function(
         inputs = [network_input, network_label],
-        outputs = model.loss
+        outputs = model.loss,
+        allow_input_downcast=True
     )
 
-    predict_net = theano.function(
+    test_net = theano.function(
         inputs = [network_input, network_label],
-        outputs = model.loss
+        outputs = model.loss,
+        allow_input_downcast=True
     )
 
     #Batch train
@@ -480,35 +486,36 @@ def test_network():
                 train_input[tb_ind*constants.BATCH_SIZE : (tb_ind+1)*constants.BATCH_SIZE],
                 train_label[tb_ind*constants.BATCH_SIZE : (tb_ind+1)*constants.BATCH_SIZE]
             )
-            # print(train_loss)
             iter = (epoch - 1) * num_train_batches + tb_ind
-            if (iter + 1) % validation_frequency == 0: # validation
+            #if (iter + 1) % validation_frequency == 0: # validation
+            if (iter + 1) % 1000 == 0: # validation
                 val_losses = [validate_net(
                     val_input[vb_ind*constants.BATCH_SIZE : (vb_ind+1)*constants.BATCH_SIZE],
                     val_label[vb_ind*constants.BATCH_SIZE : (vb_ind+1)*constants.BATCH_SIZE]
-                ) for vb_ind in num_val_batches]
+                ) for vb_ind in xrange(num_val_batches)]
                 this_val_loss = np.mean(val_losses)
                 print(
-                    'epoch %i, minibatch %i/%i, validation error %f %%' %
+                        'epoch %i, minibatch %i/%i,loss %f, validation error %f %%' %
                     (
                         epoch,
                         tb_ind + 1,
                         num_train_batches,
+                        train_loss,
                         this_val_loss * 100.
                     )
                 )
 
                 if this_val_loss < best_val_loss:
                     # improve patience if loss improvement is good enough
-                    if this_val_loss < best_val_loss * improvement_threshold:
-                        patience = max(patience, iter * patience_increase)
+                    #if this_val_loss < best_val_loss * improvement_threshold:
+                    #    patience = max(patience, iter * patience_increase)
                     best_val_loss = this_val_loss
 
                     # Test
                     test_losses = [test_net(
                         test_input[i*constants.BATCH_SIZE : (i+1)*constants.BATCH_SIZE],
                         test_label[i*constants.BATCH_SIZE : (i+1)*constants.BATCH_SIZE]
-                    ) for i in num_test_batches]
+                    ) for i in xrange(num_test_batches)]
                     test_score = np.mean(test_losses)
                     print(
                         ( '     epoch %i, minibatch %i/%i, test error of'
@@ -526,9 +533,9 @@ def test_network():
                     with open('best_model.pkl', 'wb') as f:
                         pickle.dump(model, f)
 
-            if patience <= iter:
-                done_looping = True
-                break
+            #if patience <= iter:
+            #    done_looping = True
+            #    break
 
     print(
         (
