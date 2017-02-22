@@ -1,5 +1,5 @@
-# 10715Project
-10715 Machine Learning course project: Multitask Learning for Semantic Acoustical Embedding
+# 10715 Machine Learning course project
+Multitask Learning for Semantic Acoustical Embedding
 ===
 
 ## Motivation
@@ -27,5 +27,17 @@ Second, we propose a multitask learning framework that uses the embeddings to do
 7. Dialect prediction: given an acoustic speech segment, predict the dialect of the speaker.
 
 Third, we empirically show that with our proposed architecture, we are able to predict the each individual task with high accuracy, but have errors when predicting multitasks because these tasks are not related closely enough to give generative shared speech embeddings. Thus, we need a more robust technique than basic multitask learning in order to construct embeddings that contain properties from all of these tasks.
+
+## Net Structure
+![task_layer](writeup/10-715-final/task_layers.png)
+![task_layer](writeup/10-715-final/convnet_layers.png)
+
+## Results
+|Task | Age | Gender | Word | Education | Dialect | Speaker|
+|:----|----:|-------:|-----:|----------:|--------:|-------:|
+|Error | 0.01510 | 0.02093 | 0.1592 | 0.1662 | 0.2093 | 0.2869|
+
+## Conclusions
+In this paper, we presented a multitask learning architecture creating word embeddings while capturing both acoustical and semantic information in speech signals, and found that it learned well for each individual task, but the tasks were not related enough to properly learn embeddings for accurate multitask predictions using a standard architecture. We further found that standard gradient descent update approaches suffer from different drawbacks, and compared it with Adagrad, but neither were sufficient to make accurate multitask predictions.
 
 See detailed writeup [Here](writeup/)
