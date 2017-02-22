@@ -1,0 +1,112 @@
+\begin{thebibliography}{10}
+
+\bibitem{bengio2014word}
+Samy Bengio and Georg Heigold.
+\newblock Word embeddings for speech recognition.
+\newblock In {\em Proceedings of the 15th Conference of the International
+  Speech Communication Association, {Interspeech}}, 2014.
+
+\bibitem{kamper2016deep}
+Herman Kamper, Weiran Wang, and Karen Livescu.
+\newblock Deep convolutional acoustic word embeddings using word-pair side
+  information.
+\newblock In {\em ICASSP 2016}.
+
+\bibitem{ghannay2016evaluation}
+Sahar Ghannay, Yannick Esteve, Nathalie Camelin, et~al.
+\newblock Evaluation of acoustic word embeddings.
+\newblock In {\em ACL 2016}.
+
+\bibitem{audhkhasi2016semantic}
+Kartik Audhkhasi, Abhinav Sethy, and Bhuvana Ramabhadran.
+\newblock Semantic word embedding neural network language models for automatic
+  speech recognition.
+\newblock In {\em 2016 IEEE International Conference on Acoustics, Speech and
+  Signal Processing (ICASSP)}, pages 5995--5999. IEEE, 2016.
+
+\bibitem{ittichaichareon2012speech}
+Chadawan Ittichaichareon, Siwat Suksri, and Thaweesak Yingthawornsuk.
+\newblock Speech recognition using mfcc.
+\newblock In {\em International Conference on Computer Graphics, Simulation and
+  Modeling (ICGSM'2012) July}, pages 28--29, 2012.
+
+\bibitem{saini2013automatic}
+Preeti Saini and Parneet Kaur.
+\newblock Automatic speech recognition: A review.
+\newblock {\em International journal of Engineering Trends \& Technology},
+  pages 132--136, 2013.
+
+\bibitem{hinton2012deep}
+Geoffrey Hinton, Li~Deng, Dong Yu, George~E Dahl, Abdel-rahman Mohamed, Navdeep
+  Jaitly, Andrew Senior, Vincent Vanhoucke, Patrick Nguyen, Tara~N Sainath,
+  et~al.
+\newblock Deep neural networks for acoustic modeling in speech recognition: The
+  shared views of four research groups.
+\newblock {\em IEEE Signal Processing Magazine}, 29(6):82--97, 2012.
+
+\bibitem{kenny2014joint}
+Patrick Kenny, Themos Stafylakis, J~Alam, Pierre Ouellet, and Marcel Kockmann.
+\newblock Joint factor analysis for text-dependent speaker verification.
+\newblock In {\em Proc. Odyssey Workshop}, pages 1--8, 2014.
+
+\bibitem{garimella2015robust}
+Sri Garimella, Arindam Mandal, Nikko Strom, Bjorn Hoffmeister, Spyros
+  Matsoukas, and Sree Hari~Krishnan Parthasarathi.
+\newblock Robust i-vector based adaptation of dnn acoustic model for speech
+  recognition.
+\newblock {\em In Proceedings of Interspeech}, 2015.
+
+\bibitem{chen2011applying}
+Li~Chen and Yingchun Yang.
+\newblock Applying emotional factor analysis and i-vector to emotional speaker
+  recognition.
+\newblock In {\em Chinese Conference on Biometric Recognition}, pages 174--179.
+  Springer, 2011.
+
+\bibitem{chen2013emotional}
+Li~Chen and Yingchun Yang.
+\newblock Emotional speaker recognition based on i-vector through atom aligned
+  sparse representation.
+\newblock In {\em 2013 IEEE International Conference on Acoustics, Speech and
+  Signal Processing}, pages 7760--7764. IEEE, 2013.
+
+\bibitem{andrew2014improve}
+Andrew Senior and Ignacio Lopez-Moreno.
+\newblock Improving dnn speaker independence with i-vector inputs.
+\newblock In {\em Proc. ICASSP}, 2014.
+
+\bibitem{karanasou2014adaptation}
+Penny Karanasou, Yongqiang Wang, Mark~JF Gales, and Philip~C Woodland.
+\newblock Adaptation of deep neural network acoustic models using factorised
+  i-vectors.
+\newblock In {\em INTERSPEECH}, pages 2180--2184, 2014.
+
+\bibitem{collobert2008unified}
+Ronan Collobert and Jason Weston.
+\newblock A unified architecture for natural language processing: Deep neural
+  networks with multitask learning.
+\newblock In {\em ICML 2008}.
+
+\bibitem{liu2015representation}
+Xiaodong Liu, Jianfeng Gao, Xiaodong He, Li~Deng, Kevin Duh, and Ye-Yi Wang.
+\newblock Representation learning using multi-task deep neural networks for
+  semantic classification and information retrieval.
+\newblock In {\em NAACL 2015}.
+
+\bibitem{sogaard2016deep}
+Anders S{\o}gaard and Yoav Goldberg.
+\newblock Deep multi-task learning with low level tasks supervised at lower
+  layers.
+\newblock In {\em ACL 2016}.
+
+\bibitem{luong2015multi}
+Minh-Thang Luong, Quoc~V Le, Ilya Sutskever, Oriol Vinyals, and Lukasz Kaiser.
+\newblock Multi-task sequence to sequence learning.
+\newblock In {\em ICLR 2016}.
+
+\bibitem{switchboard}
+John Godfrey and Edward Holliman.
+\newblock Switchboard-1 release 2.
+\newblock LDC97S62, 1993.
+
+\end{thebibliography}
