@@ -11,12 +11,19 @@ The contributions of this paper are three-folded.
 First, we propose a semantic acoustic embedding that encodes the acoustic and semantic information of speech utterances into vector embeddings. This takes into consideration both the acoustical and semantic information of speech signals, and aids the related downstream tasks with compact representations.
 
 Second, we propose a multitask learning framework that uses the embeddings to do task-specific predictions. The seven tasks that we used in our multitask learning architecture are
+
 1. Word recognition: given an acoustic speech segment, predict the word that was uttered in the segment.
+
 2. Word semantic prediction: given an acoustic speech segment, minimize the distance between the prediction and the pretrained embedding of the word that was uttered.
+
 3. Gender prediction: given an acoustic speech segment, predict the gender of the speaker.
+
 4. Speaker identification: given an acoustic speech segment, predict which speaker is speaking.
+
 5. Age prediction: given an acoustic speech segment, predict the age range of the speaker.
+
 6. Education prediction: given an acoustic speech segment, predict the education level of the speaker.
+
 7. Dialect prediction: given an acoustic speech segment, predict the dialect of the speaker.
 
 Third, we empirically show that with our proposed architecture, we are able to predict the each individual task with high accuracy, but have errors when predicting multitasks because these tasks are not related closely enough to give generative shared speech embeddings. Thus, we need a more robust technique than basic multitask learning in order to construct embeddings that contain properties from all of these tasks.
